@@ -1,3 +1,5 @@
+> This project is in the initial stages of development. Feel free  > to look around and play with the code.
+
 # Introduction
 
 SQLite-Mongo is envisaged as a mongod-compatible server application, which you can connect to using any of your favourite MongoDB clients or language drivers. The plan is to use SQLite as the storage backend.

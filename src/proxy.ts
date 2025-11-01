@@ -138,9 +138,11 @@ function parseOpMsg(payload: Buffer): any[] {
 function prettyPrintHex(buf: Buffer, wordLength = 4, lineLength = 16): void {
   const bytesFormatted = [...buf].map(byte => byte.toString(16).padStart(2, '0').toUpperCase());
   for (const [index, byte] of bytesFormatted.entries()) {
-    const isEndOfWord = (index + 1) % wordLength === 0;
+    const isStartOfLine = index % lineLength === 0;
     const isEndOfLine = (index + 1) % lineLength === 0;
+    const isEndOfWord = (index + 1) % wordLength === 0;
 
+    if (isStartOfLine) process.stdout.write(index.toString(16).padStart(4, '0') + '  ');
     process.stdout.write(byte + ' ');
     if (isEndOfLine) process.stdout.write('\n');
     if (!isEndOfLine && isEndOfWord) process.stdout.write(' ');
@@ -173,23 +175,28 @@ const server = net.createServer((clientSock: Socket) => {
 
       log('C->S message', { from: clientRemote, messageLength, requestID, responseTo, opCode });
       prettyPrintHex(chunk);
-      // try {
-      //   // const { docs, raw } = extractBsonDocs(payload);
-      //   let docs = parseOpMsg(payload);
-      //   if (docs.length) {
-      //     log(`  Parsed ${docs.length} BSON doc(s) from client message`);
-      //     docs.forEach((d, i) => log(`    doc[${i}]`, JSON.stringify(d)));
-      //   }
+      try {
+        // const { docs, raw } = extractBsonDocs(payload);
+        // let docs = parseOpMsg(payload);
+        // if (docs.length) {
+        //   log(`  Parsed ${docs.length} BSON doc(s) from client message`);
+        //   docs.forEach((d, i) => log(`    doc[${i}]`, JSON.stringify(d)));
+        // }
 
-      //   // if (raw.length) {
-      //   //   raw.forEach((rbuf, i) => 
-      //   //     log(`    raw[${i}] hex(${rbuf.length})`, prettyHex(rbuf, 128))
-      //   //   );
-      //   // }
-      // } catch(e: any) {
-      //   log('  BSON parse error (client->server):', e?.message);
-      //   log('  payload hex sample:', prettyHex(payload, 128));
-      // }
+        // if (raw.length) {
+        //   raw.forEach((rbuf, i) => 
+        //     log(`    raw[${i}] hex(${rbuf.length})`, prettyHex(rbuf, 128))
+        //   );
+        // }
+
+        switch(opCode) {
+          case 2004:
+            const parsedPayload = parseOpQueryPayload(payload);
+        }
+      } catch(e: any) {
+        log('  BSON parse error (client->server):', e?.message);
+        log('  payload hex sample:', payload);
+      }
     });
   });
 

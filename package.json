@@ -10,9 +10,11 @@
   "license": "ISC",
   "type": "module",
   "description": "",
-  "dependencies": {
+  "devDependencies": {
     "@types/node": "^24.9.2",
-    "bson": "^6.10.4",
     "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "bson": "^6.10.4"
   }
 }

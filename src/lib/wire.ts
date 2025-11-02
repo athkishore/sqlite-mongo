@@ -188,7 +188,7 @@ export function parseOpMsgPayload(payload: Buffer): ParsedOpMsgPayload | null /*
   };
 }
 
-type OpMsgPayloadSection = {
+export type OpMsgPayloadSection = {
   sectionKind: 0;
   doc: Record<string, any>;
 } | {
@@ -287,4 +287,55 @@ export function buildOpReplyBuffer(payload: ParsedOpReplyPayload, replyTo: numbe
   messageHeader.writeInt32LE(1, 12);
 
   return Buffer.concat([messageHeader, responsePayload]);
+}
+
+export function buildOpMsgBuffer(payload: ParsedOpMsgPayload, replyTo: number) {
+  const sectionsBytes = payload.sections.reduce((buf: Buffer, section) => {
+    switch(section.sectionKind) {
+      case 0: {
+        return Buffer.concat([buf, BSON.serialize(section.doc)]);
+      }
+      case 1: {
+        const docsBytes = section.docs.reduce((dbuf: Buffer, doc) => {
+          return Buffer.concat([dbuf, BSON.serialize(doc)]);
+        }, Buffer.alloc(0));
+
+        const documentSequenceIdentifierBytes = Buffer.concat([
+          Buffer.from(section.documentSequenceIdentifier, 'utf-8'),
+          Buffer.from([0x00]),
+        ]);
+
+        const sectionSize = 4 + documentSequenceIdentifierBytes.length + sectionsBytes.length;
+        let sizeBytes = Buffer.alloc(4);
+        sizeBytes.writeInt32LE(sectionSize);
+
+        return Buffer.concat([
+          sizeBytes,
+          documentSequenceIdentifierBytes,
+          docsBytes,
+        ]);
+      }
+      default:
+        return buf;
+    }
+
+  }, Buffer.alloc(0));
+
+  const flagBitsBytes = Buffer.alloc(4);
+  flagBitsBytes.writeInt32LE(payload.flagBits);
+
+  const messageSize = 16 + flagBitsBytes.length + sectionsBytes.length;
+
+  const messageHeader = Buffer.alloc(16);
+  messageHeader.writeInt32LE(messageSize, 0);
+  messageHeader.writeInt32LE(1, 4);
+  messageHeader.writeInt32LE(replyTo, 8);
+  messageHeader.writeInt32LE(2013, 12);
+
+  return Buffer.concat([
+    messageHeader,
+    flagBitsBytes,
+    sectionsBytes,
+  ]);
+
 }

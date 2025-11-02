@@ -19,7 +19,7 @@ A more detailed roadmap will be made available as the project evolves.
 
 # License
 
-In the spirit of SQLite, this code for this project too will be in the public domain.
+In the spirit of SQLite, the code for this project too will be in the public domain.
 
 # Fun Project, Serious Project
 

@@ -60,7 +60,6 @@ function encodeOpMsg({
 }
 
 const commandDoc = {
-  $db: 'app',
   insert: 'users',
   documents: [
     {
@@ -68,6 +67,7 @@ const commandDoc = {
       email: 'user1@example.org',
     },
   ],
+  $db: 'app',
 };
 
 const opMsgBuf = encodeOpMsg({

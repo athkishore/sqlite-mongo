@@ -293,7 +293,7 @@ export function buildOpMsgBuffer(payload: ParsedOpMsgPayload, replyTo: number) {
   const sectionsBytes = payload.sections.reduce((buf: Buffer, section) => {
     switch(section.sectionKind) {
       case 0: {
-        return Buffer.concat([buf, BSON.serialize(section.doc)]);
+        return Buffer.concat([buf, Buffer.from([0x00]), BSON.serialize(section.doc)]);
       }
       case 1: {
         const docsBytes = section.docs.reduce((dbuf: Buffer, doc) => {
@@ -310,6 +310,8 @@ export function buildOpMsgBuffer(payload: ParsedOpMsgPayload, replyTo: number) {
         sizeBytes.writeInt32LE(sectionSize);
 
         return Buffer.concat([
+          buf,
+          Buffer.from([0x01]),
           sizeBytes,
           documentSequenceIdentifierBytes,
           docsBytes,

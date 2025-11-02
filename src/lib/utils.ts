@@ -5,7 +5,7 @@ export function prettyPrintHex(buf: Buffer, wordLength = 4, lineLength = 16): vo
     const isEndOfLine = (index + 1) % lineLength === 0;
     const isEndOfWord = (index + 1) % wordLength === 0;
 
-    if (isStartOfLine) process.stdout.write(index.toString(16).padStart(4, '0') + '  ');
+    // if (isStartOfLine) process.stdout.write(index.toString(16).padStart(4, '0') + '  ');
     process.stdout.write(byte + ' ');
     if (isEndOfLine) process.stdout.write('\n');
     if (!isEndOfLine && isEndOfWord) process.stdout.write(' ');

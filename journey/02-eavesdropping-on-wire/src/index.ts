@@ -28,7 +28,10 @@ async function handleNewConnection(clientSock: Socket) {
   clientSock.on('data', (data) => {
     serverSock.write(data);
     c2sBuf = Buffer.concat([c2sBuf, data]);
-    processBuffer(c2sBuf); // to be defined
+    const messages = processBuffer(c2sBuf); // to be defined
+    messages.forEach(message => {
+      console.log(`C -> S message`, message);
+    });
   });
 
   // register a callback to forward to client
@@ -36,29 +39,10 @@ async function handleNewConnection(clientSock: Socket) {
   serverSock.on('data', (data) => {
     clientSock.write(data);
     s2cBuf = Buffer.concat([s2cBuf, data]);
-    processBuffer(s2cBuf);
-  });
-
-  clientSock.on('error', (error) => {
-    console.log(`client socket error on port ${clientSock.remotePort}:`, error.message);
-    clientSock.destroy();
-    serverSock.destroy();
-  });
-
-  serverSock.on('error', (error) => {
-    console.log('server socket error:', error.message);
-    clientSock.destroy();
-    serverSock.destroy();
-  });
-
-  clientSock.on('close', () => {
-    console.log(`client closed connection on port ${clientSock.remotePort}`);
-    serverSock.destroy();
-  });
-
-  serverSock.on('close', () => {
-    console.log(`server closed connection`);
-    clientSock.destroy();
+    const messages = processBuffer(s2cBuf);
+    messages.forEach(message => {
+      console.log('S -> C message', message);
+    })
   });
 }
 
@@ -74,5 +58,49 @@ server.listen(LISTEN_PORT, LISTEN_PORT, () => {
 })
 
 function processBuffer(buf: Buffer) {
+  let offset = 0;
+  let messages: WireMessage[] = [];
+
+  // If the buffer has less than 4 bytes to read, we
+  // haven't received the messageLength field yet
+  while(buf.length - offset >= 4) {
+    const messageLength = buf.readInt32LE(offset);
+
+    // If the buffer has less than messageLenth bytes to read,
+    // wait till more bytes arrive
+    if (buf.length - offset < messageLength) break;
+
+    const messageBuf = buf.subarray(offset, offset + messageLength);
+    const message = handleMessage(messageBuf);
+    messages.push(message);
+
+    offset += messageLength;
+
+    // Remove the processed bytes from the buffer
+    buf = buf.subarray(offset);
+  }
+  return messages;
+}
+
+type WireMessage = {
+  header: {
+    messageLength: number;
+    requestID: number;
+    responseTo: number;
+    opCode: number;
+  };
+  // todo: payload types
+};
+
+function handleMessage(buf: Buffer): WireMessage {
+  // decode header
+  const messageLength = buf.readInt32LE(0);
+  const requestID = buf.readInt32LE(4);
+  const responseTo = buf.readInt32LE(8);
+  const opCode = buf.readInt32LE(12);
+
   
+  return {
+    header: { messageLength, requestID, responseTo, opCode },
+  };
 }

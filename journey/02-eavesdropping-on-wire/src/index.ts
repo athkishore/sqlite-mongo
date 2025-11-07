@@ -11,7 +11,7 @@ const LISTEN_HOST = '127.0.0.1';
 const LISTEN_PORT = 27017;
 
 async function handleNewConnection(clientSock: Socket) {
-  console.log('client connected on port:', clientSock.remotePort);
+  console.log('client connected from port:', clientSock.remotePort);
 
   // open a corresponding connection 
   // to mongod server on port 9000
@@ -73,7 +73,7 @@ function processBuffer(bufHolder: { buf: Buffer }) {
 
     const messageBuf = buf.subarray(offset, offset + messageLength);
 
-    const message = handleMessage(messageBuf);
+    const message = decodeMessage(messageBuf);
     messages.push(message);
 
     offset += messageLength;
@@ -94,7 +94,7 @@ type WireMessage = {
   // todo: payload types
 };
 
-function handleMessage(buf: Buffer): WireMessage {
+function decodeMessage(buf: Buffer): WireMessage {
   // decode header
   const messageLength = buf.readInt32LE(0);
   const requestID = buf.readInt32LE(4);

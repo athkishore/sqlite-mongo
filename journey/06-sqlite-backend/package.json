@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "better-sqlite3": "^12.4.1",
-    "bson": "^6.10.4"
+    "bson": "^6.10.4",
+    "mongodb": "^6.20.0"
   }
 }

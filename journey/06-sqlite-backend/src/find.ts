@@ -19,14 +19,25 @@ const { error, filterParseTree } = parseFilter(filterJSON);
 if (error) console.error(error);
 if (filterParseTree) console.dir(filterParseTree, { depth: null });
 
+const FILTER_OPERATORS = [
+  '$and',
+  '$eq',
+] as const;
+
+type FilterOperator = typeof FILTER_OPERATORS[number];
+
 interface FilterParseTree {
   operator: '$and',
   operands: FilterParseNode[];
 }
 
+interface FieldReference {
+  $ref: string;
+}
+
 interface FilterParseNode {
-  operator: any;
-  operands: (FilterParseNode | string | number | boolean | BigInt | null)[];
+  operator: FilterOperator;
+  operands: (FilterParseNode | FieldReference | string | number | boolean | BigInt | null)[];
 }
 
 function parseFilter(filterJSON: string): { error: Error | null, filterParseTree: FilterParseTree | null } {
@@ -49,7 +60,7 @@ function parseFilter(filterJSON: string): { error: Error | null, filterParseTree
       ) {
         operands.push({
           operator: '$eq',
-          operands: [{ operator: '$ref', operands: [key] }, value]
+          operands: [{ $ref: key }, value]
         });
       } else {
         throw new Error('Operand type not supported yet');
@@ -71,3 +82,16 @@ function parseFilter(filterJSON: string): { error: Error | null, filterParseTree
   }
 }
 
+const FilterNodetoSQLWhereFragmentMap = {
+  $eq: function (filterNode: FilterParseNode) {
+    const { operator, operands } = filterNode;
+    if (operator !== '$eq') throw new Error('An unexpected error occured'); // print node id
+    if (operands.length !== 2) throw new Error('$eq needs exactly two operands');
+
+    let sqlFragment = ``;
+  }
+};
+
+function getSQLWhereFromFilter(filter: FilterParseTree) {
+
+}

@@ -88,7 +88,16 @@ const FilterNodetoSQLWhereFragmentMap = {
     if (operator !== '$eq') throw new Error('An unexpected error occured'); // print node id
     if (operands.length !== 2) throw new Error('$eq needs exactly two operands');
 
+
     let sqlFragment = ``;
+    for (const operand of operands) {
+      if (operand && (operand as FieldReference).$ref) {
+        const fieldPath = (operand as FieldReference).$ref.split('.');
+
+        
+
+      }
+    }
   }
 };
 

@@ -6,7 +6,7 @@
 
 ChikkaDB is envisaged as a mongod-compatible server application, which you can connect to using any of your favourite MongoDB clients or language drivers. The plan is to use SQLite as the storage backend.
 
-The name of the project is a tribute to the beautiful city of Bengaluru in the diverse southern Indian state of Karnataka. 'Chikka' in Kannada means 'small', 'little', 'young' (as in younger sibling), etc.
+The name of the project is a tribute to the beautiful city of Bengaluru in the diverse southern Indian state of Karnataka, where this project was born. 'Chikka' in Kannada means 'small', 'little', 'young' (as in younger sibling), etc.
 
 The idea for this project is the result of my frustration at mongod being restricted to a narrow range of environments. For a while, I was hopeful that [FerretDB](https://www.ferretdb.com/) would fill the gap, but with v2 they have completely dropped the SQLite backend to focus on Postgres.
 

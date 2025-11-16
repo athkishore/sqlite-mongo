@@ -10,7 +10,7 @@ The name of the project is a tribute to the beautiful city of Bengaluru in the d
 
 The idea for this project is the result of my frustration at mongod being restricted to a narrow range of environments. For a while, I was hopeful that [FerretDB](https://www.ferretdb.com/) would fill the gap, but with v2 they have completely dropped the SQLite backend to focus on Postgres.
 
-The goals of ChikkaDB are ambitious and modest at once. It will never aim to be a full-fledged distributed database - no replication or sharding. However, it aims to implement as completely as possible the rich MongoDB commands (including sessions). So completely as to be able to effectively substitute mongod with sqlite-mongo for single-node operations.
+The goals of ChikkaDB are ambitious and modest at once. It will never aim to be a full-fledged distributed database - no replication or sharding. However, it aims to implement as completely as possible the rich MongoDB commands (including sessions). So completely as to be able to effectively substitute mongod with ChikkaDB for single-node operations.
 
 # Roadmap
 

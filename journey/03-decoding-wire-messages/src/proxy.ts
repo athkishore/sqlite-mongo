@@ -31,7 +31,8 @@ async function handleNewConnection(clientSock: Socket) {
     c2sBufHolder.buf = Buffer.concat([c2sBufHolder.buf, data]);
     const messages = processBuffer(c2sBufHolder); // to be defined
     messages.forEach(message => {
-      console.log(`C -> S message`, message);
+      console.log(`C -> S message`, message.header);
+      console.dir(message.payload, { depth: null });
     });
   });
 
@@ -42,7 +43,8 @@ async function handleNewConnection(clientSock: Socket) {
     s2cBufHolder.buf = Buffer.concat([s2cBufHolder.buf, data]);
     const messages = processBuffer(s2cBufHolder);
     messages.forEach(message => {
-      console.log('S -> C message', message);
+      console.log('S -> C message', message.header);
+      console.dir(message.payload, { depth: null });
     })
   });
 }

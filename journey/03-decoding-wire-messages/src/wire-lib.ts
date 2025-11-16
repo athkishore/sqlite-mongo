@@ -11,8 +11,8 @@ export type WireMessage = {
   header: MessageHeader;
   payload: 
     | OpQueryPayload
-    | OpReplyPayload;
-    // todo: OP_MSG
+    | OpReplyPayload
+    | OpMsgPayload;
 };
 
 type OpQueryPayload = {
@@ -34,6 +34,23 @@ type OpReplyPayload = {
   documents: BSON.Document[];
 };
 
+type OpMsgPayload = {
+  _type: 'OP_MSG';
+  flagBits: number;
+  sections: OpMsgPayloadSection[];
+  checksum?: number;
+};
+
+type OpMsgPayloadSection = {
+  sectionKind: 0;
+  document: BSON.Document;
+} | {
+  sectionKind: 1;
+  size: number;
+  documentSequenceIdentifier: string;
+  documents: BSON.Document[];
+};
+
 export function decodeMessage(buf: Buffer): WireMessage {
   const messageLength = buf.readInt32LE(0);
   const requestID = buf.readInt32LE(4);
@@ -48,6 +65,9 @@ export function decodeMessage(buf: Buffer): WireMessage {
       break;
     case 1:
       payload = decodeOpReplyPayload(buf.subarray(16));
+      break;
+    case 2013:
+      payload = decodeOpMsgPayload(buf.subarray(16));
       break;
     default:
       throw new Error('Unknown opcode');
@@ -76,7 +96,6 @@ function decodeOpQueryPayload(buf: Buffer): OpQueryPayload {
 
   const { documents: [query, returnFieldsSelector] } = readBSONDocuments(buf, pointer);
 
-  console.log(flags, fullCollectionName, len, numberToSkip, numberToReturn);
   if (!query) throw new Error('Missing query')
 
   return {
@@ -114,6 +133,73 @@ function decodeOpReplyPayload(buf: Buffer): OpReplyPayload {
     numberReturned,
     documents,
   };
+}
+
+function decodeOpMsgPayload(buf: Buffer): OpMsgPayload {
+  let pointer = 0;
+  const flagBits = buf.readInt32LE(pointer);
+  pointer += 4;
+
+  const sections = decodeOpMsgPayloadSections(buf, pointer);
+
+  // Skip the optional checksum
+
+  return {
+    _type: 'OP_MSG',
+    flagBits,
+    sections,
+  }
+}
+
+function decodeOpMsgPayloadSections(buf: Buffer, offset: number): OpMsgPayloadSection[] {
+  const sections: OpMsgPayloadSection[] = [];
+  let pointer = offset;
+
+  while (pointer < buf.length) {
+    const sectionKind = buf.readUint8(pointer);
+    pointer += 1;
+
+    switch(sectionKind) {
+      case 0: {
+        const size = buf.readInt32LE(pointer);
+        const { documents, len } = readBSONDocuments(buf.subarray(pointer, pointer + size), 0);
+        // TODO: Assert that exactly one document exists
+
+        const section = {
+          sectionKind,
+          document: documents[0]!,
+        };
+
+        sections.push(section);
+        pointer += size;
+        break;
+      }
+
+      case 1: {
+        const size = buf.readInt32LE(pointer);
+        pointer += 4;
+
+        const { s: documentSequenceIdentifier, len } = readNullTerminatedString(buf, offset + pointer);
+        pointer += len;
+
+        const { documents } = readBSONDocuments(buf, pointer);
+
+        // TODO: Assert that there are no more bytes to be decoded
+
+        const section = {
+          sectionKind,
+          size,
+          documentSequenceIdentifier,
+          documents,
+        };
+
+        sections.push(section);
+        break;
+      }
+    }
+  }
+
+  return sections;
 }
 
 function readNullTerminatedString(buf: Buffer, offset: number): {

@@ -33,7 +33,7 @@ This design choice leaves room for extensions and variants in the future. For ex
 
 The first version will be written in Typescript (the only language I'm fluent in currently). The aim is to implement enough database commands to support basic CRUD functionality. Each document will be stored in a single JSON field in an SQLite table.
 
-If this turns out to be successful, I have a more ambitious plan of reimplementing the server in C or another similar language like Rust, to make it more performant. 
+If this turns out to be successful, I have a more ambitious plan of reimplementing the server in C (or more realistically Rust), to make it more performant. 
 
 A more detailed roadmap will be made available as the project evolves.
 

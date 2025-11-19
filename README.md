@@ -15,7 +15,7 @@ The goals of ChikkaDB are ambitious and modest at once. It will never aim to be 
 # Architecture
 
 ## Betting on SQLite JSONB
-ChikkaDB looks to leverage SQLite's native JSONB storage format and its powerful associated functions as fully as possible. The overarchng approach is to translate MongoDB Query Language documents into SQL statements. 
+ChikkaDB looks to leverage SQLite's native JSONB storage format and its powerful associated functions as fully as possible. The overarching approach is to translate MongoDB Query Language documents into SQL statements. 
 
 While this might seem unwieldy, in practice I have found it possible to write equivalent SQL for even complex MongoDB queries and aggregation pipelines. The inbuilt [SQLite JSONB library](https://sqlite.org/json1.html) is versatile and provides functions that cover most if not all cases in manipulating JSON. With the addition of jsonb_each and jsonb_tree in v3.51.0, processing JSON data in SQLite has become ultra-fast.
 

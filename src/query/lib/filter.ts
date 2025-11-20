@@ -303,6 +303,12 @@ const parsers = {
           throw new Error('Array elements must be full objects');
         }
 
+        const isParentKeyOperator = parentKey ? /^\$/.test(parentKey) : false;
+
+        if (!isParentKeyOperator && parentKey !== null) {
+          throw new Error('$and cannot have a field reference as the parent key');
+        }
+
         const parsedNodes: CanonicalNode[] = [];
         for (const el of value) {
           const [error, node] = parseFilterDoc(el, { parentKey: '$and' });
@@ -339,6 +345,12 @@ const parsers = {
           throw new Error('Array elements must be full objects');
         }
 
+        const isParentKeyOperator = parentKey ? /^\$/.test(parentKey) : false;
+
+        if (!isParentKeyOperator && parentKey !== null) {
+          throw new Error('$or cannot have a field reference as the parent key');
+        }
+
         const parsedNodes: CanonicalNode[] = [];
         for (const el of value) {
           const [error, node] = parseFilterDoc(el, { parentKey: '$or' });
@@ -373,6 +385,12 @@ const parsers = {
         
         if (value.some(el => !el || Array.isArray(el) || typeof el !== 'object')) {
           throw new Error('Array elements must be full objects');
+        }
+
+        const isParentKeyOperator = parentKey ? /^\$/.test(parentKey) : false;
+
+        if (!isParentKeyOperator && parentKey !== null) {
+          throw new Error('$nor cannot have a field reference as the parent key');
         }
 
         const parsedNodes: CanonicalNode[] = [];

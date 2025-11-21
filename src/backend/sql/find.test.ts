@@ -1,4 +1,4 @@
-import { translateQueryToSQL } from "./sql.js";
+import { translateQueryToSQL } from "./find.js";
 import { parseFilterDoc } from "../../query/lib/filter.js";
 
 const collection = process.argv[2];

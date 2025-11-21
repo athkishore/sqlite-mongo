@@ -1,5 +1,5 @@
-import config from "../../config.js";
-import { DOC_LEVEL_OPERATORS, FIELD_LEVEL_OPERATORS, type CanonicalNode, type CanonicalNode_DocLevel, type CanonicalNode_FieldLevel, type FieldReference, type Value } from "../../query/lib/filter.js";
+import config from "../config.js";
+import { DOC_LEVEL_OPERATORS, FIELD_LEVEL_OPERATORS, type CanonicalNode, type CanonicalNode_DocLevel, type CanonicalNode_FieldLevel, type FieldReference, type Value } from "../query/filter.js";
 
 const JSON_TYPE = config.enableJSONB ? 'jsonb' : 'json';
 

@@ -1,15 +1,15 @@
 type FilterDoc = Record<string, any>;
 
-type CanonicalNode = 
+export type CanonicalNode = 
   | CanonicalNode_DocLevel
   | CanonicalNode_FieldLevel;
 
-type CanonicalNode_DocLevel = 
+export type CanonicalNode_DocLevel = 
   | CanonicalNode_$and
   | CanonicalNode_$or
   | CanonicalNode_$nor;
 
-type CanonicalNode_FieldLevel = 
+export type CanonicalNode_FieldLevel = 
   | CanonicalNode_$eq
   | CanonicalNode_$gt
   | CanonicalNode_$gte
@@ -62,11 +62,11 @@ type CanonicalNode_$ne = {
   operands: [FieldReference, Value];
 };
 
-type FieldReference = {
+export type FieldReference = {
   $ref: string;
 };
 
-type Value = 
+export type Value = 
   | string
   | number
   | boolean
@@ -74,7 +74,7 @@ type Value =
   | Array<any>
   | Object;
 
-const FIELD_LEVEL_OPERATORS = [
+export const FIELD_LEVEL_OPERATORS = [
   '$eq',
   '$gt',
   '$gte',
@@ -83,7 +83,7 @@ const FIELD_LEVEL_OPERATORS = [
   '$ne',
 ] as const;
 
-const DOC_LEVEL_OPERATORS = [
+export const DOC_LEVEL_OPERATORS = [
   '$and',
   '$or',
   '$nor',

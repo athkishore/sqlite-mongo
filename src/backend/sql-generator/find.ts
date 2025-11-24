@@ -1,5 +1,5 @@
 import config from "../config.js";
-import { DOC_LEVEL_OPERATORS, FIELD_LEVEL_OPERATORS, type CanonicalNode, type CanonicalNode_DocLevel, type CanonicalNode_FieldLevel, type FieldReference, type Value } from "../query/filter.js";
+import { DOC_LEVEL_OPERATORS, FIELD_LEVEL_OPERATORS, type CanonicalNode, type CanonicalNode_DocLevel, type CanonicalNode_FieldLevel, type FieldReference, type Value } from "../frontend/query-parser/filter.js";
 
 const JSON_TYPE = config.enableJSONB ? 'jsonb' : 'json';
 

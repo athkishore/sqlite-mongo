@@ -5,6 +5,9 @@ export type MQLCommand =
   | FindCommand
   | UpdateCommand
   | DeleteCommand
+  | BuildInfoCommand
+  | GetParameterCommand
+  | AggregateCommand
 
 export type CreateCommand = {
   command: 'create';
@@ -65,6 +68,24 @@ export type DeleteCommand = {
     limit?: number;
   }[];
 };
+
+export type BuildInfoCommand = {
+  command: 'buildInfo',
+  database: string;
+};
+
+export type GetParameterCommand = {
+  command: 'getParameter',
+  database: string;
+  featureCompatibilityVersion?: any;
+}
+
+export type AggregateCommand = {
+  command: 'aggregate';
+  database: string;
+  pipeline: any[];
+  cursor: any;
+}
 
 
 

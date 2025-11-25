@@ -1,10 +1,15 @@
 import type { QueryIR } from "#shared/types.js";
 import Database from "better-sqlite3";
-import { generatePreparedStatement_Create } from "./create.js";
-export function generatePreparedStatementFromQueryIR(commandIR: any, db: Database.Database): Database.Statement {
+import { generateAndExecuteSQL_Create } from "./create.js";
+import { generateAndExecuteSQL_Insert } from "./insert.js";
+export function generateAndExecuteSQLFromQueryIR(commandIR: any, db: Database.Database): any {
   switch (commandIR.command) {
     case 'create': {
-      return generatePreparedStatement_Create(commandIR, db);
+      return generateAndExecuteSQL_Create(commandIR, db);
+    }
+
+    case 'insert': {
+      return generateAndExecuteSQL_Insert(commandIR, db);
     }
   }
   

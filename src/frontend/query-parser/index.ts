@@ -10,5 +10,9 @@ export function generateQueryIRFromCommand(command: MQLCommand): any {
     case 'insert': {
       return command;
     }
+
+    case 'find': {
+      return command;
+    }
   }
 }

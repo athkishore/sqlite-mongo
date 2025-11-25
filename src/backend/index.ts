@@ -6,9 +6,7 @@ export function executeQueryIR(queryIR: any) : any {
   try {
     const result = generateAndExecuteSQLFromQueryIR(queryIR, db);
 
-    return {
-      ok: 1
-    };
+    return result;
   } catch (error) {
     console.error(error);
     return {

@@ -292,6 +292,15 @@ function getCommandFromOpMsgBody(
         documents: document.documents,
       };
     }
+
+    case 'find': {
+      return {
+        command: 'find',
+        database: document.$db,
+        collection: document.find,
+        filter: document.filter,
+      }
+    }
   }
 }
 
@@ -305,4 +314,5 @@ const MONGODB_COMMANDS = [
   'endSessions',
   'create',
   'insert',
+  'find',
 ] as const;

@@ -8,6 +8,8 @@ import {
   type FieldReference, 
   type Value 
 } from "#shared/types.js";
+import type { Database } from "better-sqlite3";
+import { validateIdentifier } from "./utils.js";
 
 const JSON_TYPE = config.enableJSONB ? 'jsonb' : 'json';
 
@@ -243,3 +245,28 @@ function getValueSqlFragment(value: Value) {
 
   throw new Error('Unknown type for value: ' + value);
 }
+
+export function generateAndExecuteSQL_Find(command: FindCommandIR, db: Database) {
+  const { collection, database } = command;
+  const isCollectionNameValid = validateIdentifier(collection);
+
+  if (!isCollectionNameValid) throw new Error('Invalid Collection Name');
+
+  const stmt = db.prepare(`SELECT doc FROM ${collection}`);
+  const result = stmt.all();
+
+  return { 
+    cursor: {
+      firstBatch: result.map(el => JSON.parse((el as any).doc)),
+      id: { $numberLong: '0' },
+      ns: `${database}.${collection}`,
+    },
+    ok: 1,
+  };
+}
+
+type FindCommandIR = {
+  command: 'find';
+  database: string;
+  collection: string;
+};

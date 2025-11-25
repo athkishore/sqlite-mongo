@@ -2,6 +2,7 @@ import type { QueryIR } from "#shared/types.js";
 import Database from "better-sqlite3";
 import { generateAndExecuteSQL_Create } from "./create.js";
 import { generateAndExecuteSQL_Insert } from "./insert.js";
+import { generateAndExecuteSQL_Find } from "./find.js";
 export function generateAndExecuteSQLFromQueryIR(commandIR: any, db: Database.Database): any {
   switch (commandIR.command) {
     case 'create': {
@@ -10,6 +11,10 @@ export function generateAndExecuteSQLFromQueryIR(commandIR: any, db: Database.Da
 
     case 'insert': {
       return generateAndExecuteSQL_Insert(commandIR, db);
+    }
+
+    case 'find': {
+      return generateAndExecuteSQL_Find(commandIR, db);
     }
   }
   

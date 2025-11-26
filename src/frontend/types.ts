@@ -12,6 +12,8 @@ export type MQLCommand =
   | GetLogCommand
   | HelloCommand
   | EndSessionsCommand
+  | ConnectionStatusCommand
+  | HostInfoCommand
 
 export type CreateCommand = {
   command: 'create';
@@ -110,7 +112,19 @@ export type HelloCommand = {
 export type EndSessionsCommand = {
   command: 'endSessions';
   database: string;
-}
+};
+
+export type ConnectionStatusCommand = {
+  command: 'connectionStatus';
+  database: string;
+  showPrivileges?: boolean;
+};
+
+export type HostInfoCommand = {
+  command: 'hostInfo';
+  database: string;
+};
+
 
 
 export type CommandResponse = {};

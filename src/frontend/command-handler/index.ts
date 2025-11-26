@@ -396,7 +396,16 @@ function getCommandFromOpMsgBody(
         database: document.$db,
         collection: document.find,
         filter: document.filter,
-      }
+      };
+    }
+
+    case 'count': {
+      return {
+        command: 'count',
+        database: document.$db,
+        collection: document.count,
+        filter: document.filter,
+      };
     }
 
     case 'connectionStatus': {
@@ -443,6 +452,7 @@ const MONGODB_COMMANDS = [
   'create',
   'insert',
   'find',
+  'count',
   'connectionStatus',
   'hostInfo',
   'listDatabases',

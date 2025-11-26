@@ -5,6 +5,7 @@ import { generateAndExecuteSQL_Insert } from "./insert.js";
 import { generateAndExecuteSQL_Find } from "./find.js";
 import { databases } from "#backend/database/index.js";
 import { generateAndExecuteSQL_ListCollections } from "./list-collections.js";
+import { generateAndExecuteSQL_Count } from "./count.js";
 
 export function generateAndExecuteSQLFromQueryIR(commandIR: any, db: Database.Database): any {
   switch (commandIR.command) {
@@ -18,6 +19,10 @@ export function generateAndExecuteSQLFromQueryIR(commandIR: any, db: Database.Da
 
     case 'find': {
       return generateAndExecuteSQL_Find(commandIR, db);
+    }
+
+    case 'count': {
+      return generateAndExecuteSQL_Count(commandIR, db);
     }
 
     case 'listDatabases': {

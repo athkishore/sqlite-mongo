@@ -3,6 +3,7 @@ export type MQLCommand =
   | DropCommand   // drop collection
   | InsertCommand
   | FindCommand
+  | CountCommand
   | UpdateCommand
   | DeleteCommand
   | BuildInfoCommand

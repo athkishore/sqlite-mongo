@@ -6,7 +6,8 @@ import {
   type FilterNodeIR_DocLevel, 
   type FilterNodeIR_FieldLevel, 
   type FieldReference, 
-  type Value 
+  type Value, 
+  type FindCommandIR
 } from "#shared/types.js";
 import type { Database } from "better-sqlite3";
 import { validateIdentifier } from "./utils.js";
@@ -252,8 +253,16 @@ export function generateAndExecuteSQL_Find(command: FindCommandIR, db: Database)
 
   if (!isCollectionNameValid) throw new Error('Invalid Collection Name');
 
-  const stmt = db.prepare(`SELECT doc FROM ${collection}`);
+  // const stmt = db.prepare(`SELECT doc FROM ${collection}`);
+  // const result = stmt.all();
+
+  const sql = translateQueryToSQL({ collection, canonicalFilter: command.filter });
+
+  console.log(sql);
+
+  const stmt = db.prepare(sql);
   const result = stmt.all();
+
 
   return { 
     cursor: {
@@ -264,9 +273,3 @@ export function generateAndExecuteSQL_Find(command: FindCommandIR, db: Database)
     ok: 1,
   };
 }
-
-type FindCommandIR = {
-  command: 'find';
-  database: string;
-  collection: string;
-};

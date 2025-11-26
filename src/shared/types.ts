@@ -88,6 +88,43 @@ export const DOC_LEVEL_FILTER_OPERATORS = [
   '$nor',
 ];
 
+export type CommandIR = 
+  | FindCommandIR
+  | InsertCommandIR
+  | CreateCommandIR
+  | ListDatabasesCommandIR
+  | ListCollectionsCommandIR;
+
+export type FindCommandIR = {
+  command: 'find';
+  database: string;
+  collection: string;
+  filter: FilterNodeIR;
+  // projection: ProjectionNodeIR;
+};
+
+export type InsertCommandIR = {
+  command: 'insert';
+  database: string;
+  collection: string;
+  documents: Record<string, any>[];
+};
+
+export type CreateCommandIR = {
+  command: 'create';
+  database: string;
+  collection: string;
+};
+
+export type ListDatabasesCommandIR = {
+  command: 'listDatabases';
+  database: string;
+};
+
+export type ListCollectionsCommandIR = {
+  command: 'listCollections';
+  database: string;
+};
 
 export type QueryIR = {};
 export type ResultIR = {};

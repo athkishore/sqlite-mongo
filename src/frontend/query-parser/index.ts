@@ -1,7 +1,8 @@
 import type { MQLCommand } from "#frontend/types.js";
-import type { QueryIR } from "#shared/types.js";
+import type { CommandIR, QueryIR } from "#shared/types.js";
+import { parseFindCommand } from "./find.js";
 
-export function generateQueryIRFromCommand(command: MQLCommand): any {
+export function generateQueryIRFromCommand(command: MQLCommand): CommandIR {
   switch (command.command) {
     case 'create': {
       return command;
@@ -12,7 +13,7 @@ export function generateQueryIRFromCommand(command: MQLCommand): any {
     }
 
     case 'find': {
-      return command;
+      return parseFindCommand(command);
     }
 
     case 'listDatabases': {
@@ -23,4 +24,7 @@ export function generateQueryIRFromCommand(command: MQLCommand): any {
       return command;
     }
   }
+
+  return command as any;
+  // throw new Error('Unable to parse command into IR: ' + command.command)
 }

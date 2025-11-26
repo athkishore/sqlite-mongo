@@ -3,10 +3,16 @@ import fs from 'fs';
 
 const DB_PATH = 'data/db';
 
-const filenames = fs.readdirSync(DB_PATH);
 
-const databaseFilenames = filenames.filter(f => /.*sqlite$/.test(f));
-
-export const databases = databaseFilenames.map(f => f.split('.')[0]);
 
 export const db = new Database(`${DB_PATH}/test.sqlite`);
+
+export function getDatabases() {
+  const filenames = fs.readdirSync(DB_PATH);
+
+  const databaseFilenames = filenames.filter(f => /.*sqlite$/.test(f)); 
+
+  const databases = databaseFilenames.map(f => f.split('.')[0]);
+
+  return databases;
+}

@@ -410,7 +410,15 @@ function getCommandFromOpMsgBody(
     case 'hostInfo': {
       return {
         command: 'hostInfo',
-        database: document.db,
+        database: document.$db,
+      };
+    }
+
+    case 'listDatabases': {
+      return {
+        command: 'listDatabases',
+        database: document.$db,
+        nameOnly: document.nameOnly,
       };
     }
   }
@@ -429,4 +437,5 @@ const MONGODB_COMMANDS = [
   'find',
   'connectionStatus',
   'hostInfo',
+  'listDatabases',
 ] as const;

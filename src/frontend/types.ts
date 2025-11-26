@@ -14,6 +14,7 @@ export type MQLCommand =
   | EndSessionsCommand
   | ConnectionStatusCommand
   | HostInfoCommand
+  | ListDatabasesCommand
 
 export type CreateCommand = {
   command: 'create';
@@ -125,6 +126,12 @@ export type HostInfoCommand = {
   database: string;
 };
 
+export type ListDatabasesCommand = {
+  command: 'listDatabases';
+  database: string;
+  // filter
+  nameOnly?: boolean;
+}
 
 
 export type CommandResponse = {};

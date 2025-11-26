@@ -14,5 +14,9 @@ export function generateQueryIRFromCommand(command: MQLCommand): any {
     case 'find': {
       return command;
     }
+
+    case 'listDatabases': {
+      return command;
+    }
   }
 }

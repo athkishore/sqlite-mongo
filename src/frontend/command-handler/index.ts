@@ -421,6 +421,14 @@ function getCommandFromOpMsgBody(
         nameOnly: document.nameOnly,
       };
     }
+
+    case 'listCollections': {
+      return {
+        command: 'listCollections',
+        database: document.$db,
+        nameOnly: document.nameOnly,
+      };
+    }
   }
 }
 
@@ -438,4 +446,5 @@ const MONGODB_COMMANDS = [
   'connectionStatus',
   'hostInfo',
   'listDatabases',
+  'listCollections',
 ] as const;

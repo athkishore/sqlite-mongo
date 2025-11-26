@@ -4,6 +4,7 @@ import { generateAndExecuteSQL_Create } from "./create.js";
 import { generateAndExecuteSQL_Insert } from "./insert.js";
 import { generateAndExecuteSQL_Find } from "./find.js";
 import { databases } from "#backend/database/index.js";
+import { generateAndExecuteSQL_ListCollections } from "./list-collections.js";
 
 export function generateAndExecuteSQLFromQueryIR(commandIR: any, db: Database.Database): any {
   switch (commandIR.command) {
@@ -22,6 +23,22 @@ export function generateAndExecuteSQLFromQueryIR(commandIR: any, db: Database.Da
     case 'listDatabases': {
       return {
         databases: databases.map(d => ({ name: d })),
+        ok: 1,
+      };
+    }
+
+    case 'listCollections': {
+      const collections = generateAndExecuteSQL_ListCollections(commandIR, db);
+      
+      return {
+        cursor: {
+          id: 0n,
+          ns: `${commandIR.database}.$cmd.listCollections`,
+          firstBatch: collections.map((c: any) => ({
+            ...c,
+            type: 'collection',
+          }))
+        },
         ok: 1,
       };
     }

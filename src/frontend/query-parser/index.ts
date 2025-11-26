@@ -18,5 +18,9 @@ export function generateQueryIRFromCommand(command: MQLCommand): any {
     case 'listDatabases': {
       return command;
     }
+
+    case 'listCollections': {
+      return command;
+    }
   }
 }

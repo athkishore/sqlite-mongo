@@ -425,6 +425,16 @@ function getCommandFromOpMsgBody(
         updates: document.updates,
       };
     }
+    
+    case 'findAndModify': {
+      return {
+        command: 'findAndModify',
+        database: document.$db,
+        collection: document.collection,
+        query: document.query,
+        update: document.update,
+      };
+    }
 
     case 'connectionStatus': {
       return {
@@ -473,6 +483,7 @@ const MONGODB_COMMANDS = [
   'count',
   'delete',
   'update',
+  'findAndModify',
   'connectionStatus',
   'hostInfo',
   'listDatabases',

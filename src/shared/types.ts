@@ -113,6 +113,7 @@ export type CommandIR =
   | DeleteCommandIR
   | InsertCommandIR
   | UpdateCommandIR
+  | FindAndModifyCommandIR
   | CreateCommandIR
   | ListDatabasesCommandIR
   | ListCollectionsCommandIR;
@@ -163,6 +164,14 @@ export type UpdateCommandIR = {
     filter: FilterNodeIR;
     update: UpdateNodeIR[];
   }[];
+};
+
+export type FindAndModifyCommandIR = {
+  command: 'findAndModify';
+  database: string;
+  collection: string;
+  filter: FilterNodeIR;
+  update: UpdateNodeIR[];
 };
 
 export type ListDatabasesCommandIR = {

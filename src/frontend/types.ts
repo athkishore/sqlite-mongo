@@ -5,6 +5,7 @@ export type MQLCommand =
   | FindCommand
   | CountCommand
   | UpdateCommand
+  | FindAndModifyCommand
   | DeleteCommand
   | BuildInfoCommand
   | GetParameterCommand
@@ -66,6 +67,14 @@ export type UpdateCommand = {
     q: Record<string, any>;
     u: Record<string, any>; // TODO: aggregation pipeline
   }[];
+};
+
+export type FindAndModifyCommand = {
+  command: 'findAndModify';
+  database: string;
+  collection: string;
+  query: Record<string, any>; // TODO: aggregation pipeline
+  update: Record<string, any>;
 };
 
 export type DeleteCommand = {

@@ -1,5 +1,6 @@
 import type { Database } from "better-sqlite3";
 import { validateIdentifier } from "./utils.js";
+import { ObjectId } from "bson";
 
 export function generateAndExecuteSQL_Insert(command: InsertCommandIR, db: Database) {
   const { collection, documents } = command;
@@ -13,7 +14,11 @@ export function generateAndExecuteSQL_Insert(command: InsertCommandIR, db: Datab
   const insert = db.prepare(`INSERT INTO ${collection} VALUES (?, ?)`);
   const transaction = db.transaction(documents => {
     for (const document of documents) {
-      insert.run(document._id, JSON.stringify(document));
+      const { _id } = document;
+      insert.run(
+        _id instanceof ObjectId ? _id.toHexString() : _id,
+        JSON.stringify(document)
+      );
     }
   });
 

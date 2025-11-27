@@ -1,4 +1,4 @@
-import type { QueryIR } from "#shared/types.js";
+import type { CommandIR, QueryIR } from "#shared/types.js";
 import Database from "better-sqlite3";
 import { generateAndExecuteSQL_Create } from "./create.js";
 import { generateAndExecuteSQL_Insert } from "./insert.js";
@@ -6,8 +6,9 @@ import { generateAndExecuteSQL_Find } from "./find.js";
 import { getDatabases } from "#backend/database/index.js";
 import { generateAndExecuteSQL_ListCollections } from "./list-collections.js";
 import { generateAndExecuteSQL_Count } from "./count.js";
+import { generateAndExecuteSQL_Delete } from "./delete.js";
 
-export function generateAndExecuteSQLFromQueryIR(commandIR: any, db: Database.Database): any {
+export function generateAndExecuteSQLFromQueryIR(commandIR: CommandIR, db: Database.Database): any /* Add strong typing */ {
   switch (commandIR.command) {
     case 'create': {
       return generateAndExecuteSQL_Create(commandIR, db);
@@ -23,6 +24,10 @@ export function generateAndExecuteSQLFromQueryIR(commandIR: any, db: Database.Da
 
     case 'count': {
       return generateAndExecuteSQL_Count(commandIR, db);
+    }
+
+    case 'delete': {
+      return generateAndExecuteSQL_Delete(commandIR, db);
     }
 
     case 'listDatabases': {

@@ -90,6 +90,8 @@ export const DOC_LEVEL_FILTER_OPERATORS = [
 
 export type CommandIR = 
   | FindCommandIR
+  | CountCommandIR
+  | DeleteCommandIR
   | InsertCommandIR
   | CreateCommandIR
   | ListDatabasesCommandIR
@@ -102,6 +104,23 @@ export type FindCommandIR = {
   filter: FilterNodeIR;
   // projection: ProjectionNodeIR;
 };
+
+export type CountCommandIR = {
+  command: 'count';
+  database: string;
+  collection: string;
+  filter: FilterNodeIR;
+};
+
+export type DeleteCommandIR = {
+  command: 'delete';
+  database: string;
+  collection: string;
+  deletes: {
+    filter: FilterNodeIR;
+    limit?: number | undefined;
+  }[];
+}
 
 export type InsertCommandIR = {
   command: 'insert';

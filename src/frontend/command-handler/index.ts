@@ -408,6 +408,15 @@ function getCommandFromOpMsgBody(
       };
     }
 
+    case 'delete': {
+      return {
+        command: 'delete',
+        database: document.$db,
+        collection: document.delete,
+        deletes: document.deletes,
+      };
+    }
+
     case 'connectionStatus': {
       return {
         command: 'connectionStatus',
@@ -453,6 +462,8 @@ const MONGODB_COMMANDS = [
   'insert',
   'find',
   'count',
+  'delete',
+  'update',
   'connectionStatus',
   'hostInfo',
   'listDatabases',

@@ -34,12 +34,8 @@ export function translateQueryToSQL({
     conditionCTEs: [],
   };
 
-  console.dir(canonicalFilter, { depth: null });
-
   traverseFilterAndTranslateCTE(canonicalFilter, context);
 
-  console.dir(canonicalFilter, { depth: null });
-  console.log(context.conditionCTEs);
   const whereFragment = getWhereClauseFromAugmentedFilter(canonicalFilter, context);
 
   const {

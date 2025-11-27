@@ -1,0 +1,25 @@
+import type { DeleteCommand } from "#frontend/types.js";
+import type { DeleteCommandIR } from "#shared/types.js";
+import { parseFilterDoc } from "./filter.js";
+
+export function parseDeleteCommand(command: DeleteCommand): DeleteCommandIR {
+  const { deletes } = command;
+
+  const filter = deletes[0]?.q;
+
+  if (!filter) throw new Error('Missing filter for delete');
+
+  const [error, filterIR] = parseFilterDoc(filter, { parentKey: null });
+
+  if (error) throw error;
+
+  return {
+    ...command,
+    deletes: [
+      {
+        filter: filterIR,
+        limit: deletes[0]?.limit,
+      }
+    ]
+  }
+}

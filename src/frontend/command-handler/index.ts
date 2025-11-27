@@ -417,6 +417,15 @@ function getCommandFromOpMsgBody(
       };
     }
 
+    case 'update': {
+      return {
+        command: 'update',
+        database: document.$db,
+        collection: document.update,
+        updates: document.updates,
+      };
+    }
+
     case 'connectionStatus': {
       return {
         command: 'connectionStatus',

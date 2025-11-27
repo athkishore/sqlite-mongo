@@ -88,11 +88,29 @@ export const DOC_LEVEL_FILTER_OPERATORS = [
   '$nor',
 ];
 
+export const UPDATE_OPERATORS_FIELD = [
+  '$set',
+] as const;
+
+export type UpdateNodeIR = 
+  | UpdateNodeIR_$set;
+
+export type UpdateNodeIR_$set = {
+  operator: '$set';
+  operandsArr: [FieldReference, Value][];
+};
+
+export type UpdateNodeIR_$unset = {
+  operator: '$unset';
+  operandsArr: [FieldReference, Value][];
+}
+
 export type CommandIR = 
   | FindCommandIR
   | CountCommandIR
   | DeleteCommandIR
   | InsertCommandIR
+  | UpdateCommandIR
   | CreateCommandIR
   | ListDatabasesCommandIR
   | ListCollectionsCommandIR;
@@ -133,6 +151,16 @@ export type CreateCommandIR = {
   command: 'create';
   database: string;
   collection: string;
+};
+
+export type UpdateCommandIR = {
+  command: 'update';
+  database: string;
+  collection: string;
+  updates: {
+    filter: FilterNodeIR;
+    update: UpdateNodeIR;
+  }[];
 };
 
 export type ListDatabasesCommandIR = {

@@ -46,7 +46,7 @@ export function translateQueryToSQL({
   } = context;
 
   let sql = `\
-SELECT COUNT(DISTINCT(c.id))
+SELECT c.doc
 FROM ${collection} c
 WHERE EXISTS (
   WITH
@@ -161,17 +161,18 @@ function getLeafSqlFragment({
 condition_${n} AS (
   SELECT 1 AS c${n}
   FROM (
-    SELECT json_type(c.doc, '$.${segment}') AS type,
-      ${JSON_TYPE}_extract(c.doc, '$.${segment}') AS value
+    SELECT 
+      CASE json_type(c.doc, '$.${segment}')
+        WHEN 'array' THEN je.value
+        ELSE json_extract(c.doc, '$.${segment}')
+      END AS value
+      FROM
+      (SELECT 1) AS dummy
+      LEFT JOIN ${JSON_TYPE}_each(c.doc, '$.${segment}') AS je
+        ON json_type(c.doc, '$.${segment}') = 'array'
   ) AS node
-  WHERE CASE node.type
-    WHEN 'array' THEN EXISTS (
-      SELECT 1
-      FROM ${JSON_TYPE}_each(node.value) AS c${n}_p${segmentIdx}
-      WHERE c${n}_p${segmentIdx} ${getOperatorSqlFragment(operator)} ${getValueSqlFragment(value)}
-    )
-    ELSE node.value ${getOperatorSqlFragment(operator)} ${getValueSqlFragment(value)}
-  END
+  WHERE 
+    node.value ${getOperatorSqlFragment(operator)} ${getValueSqlFragment(value)}
 )`;
 
     return sqlFragment;

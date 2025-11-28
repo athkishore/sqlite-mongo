@@ -183,6 +183,12 @@ export type FindAndModifyCommandIR = {
   update: UpdateNodeIR[];
 };
 
+export type FindAndModifyCommandResult = {
+  _type: 'findAndModify';
+  value: Record<string, any>;
+  ok: 0 | 1;
+}
+
 export type ListDatabasesCommandIR = {
   command: 'listDatabases';
   database: string;

@@ -1,9 +1,9 @@
-import type { FilterNodeIR, FindAndModifyCommandIR, UpdateNodeIR } from "#shared/types.js";
+import type { FilterNodeIR, FindAndModifyCommandIR, FindAndModifyCommandResult, UpdateNodeIR } from "#shared/types.js";
 import type { Database } from "better-sqlite3";
 import { getWhereClauseFromAugmentedFilter, traverseFilterAndTranslateCTE, type TranslationContext } from "./common/filter.js";
 import { getUpdateFragment } from "./common/update.js";
 
-export function generateAndExecuteSQL_FindAndModify(command: FindAndModifyCommandIR, db: Database) {
+export function generateAndExecuteSQL_FindAndModify(command: FindAndModifyCommandIR, db: Database): FindAndModifyCommandResult {
   const { collection, filter, update } = command;
 
   const sql = translateCommandToSQL({ collection, filter, update });
@@ -11,11 +11,13 @@ export function generateAndExecuteSQL_FindAndModify(command: FindAndModifyComman
   console.log(sql);
 
   const stmt = db.prepare(sql);
-  const result = stmt.run();
+  const result = stmt.get();
 
   console.log(result);
   return {
+    _type: 'findAndModify',
     ok: 1,
+    value: JSON.parse((result as any)?.doc),
   };
 }
 
@@ -57,7 +59,8 @@ WHERE EXISTS (
   let sql = `
 UPDATE ${collection} AS c
 set doc = ${updateFragment}
-${whereClause};
+${whereClause}
+RETURNING doc;
 `;
 
   return sql;

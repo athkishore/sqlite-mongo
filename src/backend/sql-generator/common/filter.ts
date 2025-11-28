@@ -121,6 +121,10 @@ condition_${n} AS (
   FROM (
     SELECT 
       CASE json_type(c.doc, '$.${segment}')
+        WHEN 'array' THEN je.type
+        ELSE json_type(c.doc, '$.${segment}')
+      END AS type,
+      CASE json_type(c.doc, '$.${segment}')
         WHEN 'array' THEN je.value
         ELSE json_extract(c.doc, '$.${segment}')
       END AS value
@@ -130,7 +134,7 @@ condition_${n} AS (
         ON json_type(c.doc, '$.${segment}') = 'array'
   ) AS node
   WHERE 
-    node.value ${getOperatorAndValueSqlFragment(operator, value)}
+    ${getOperatorExpression('node', operator, value)}
 )`;
 
     return sqlFragment;
@@ -206,25 +210,25 @@ export function getValueSqlFragment(value: Value) {
   throw new Error('Unknown type for value: ' + value);
 }
 
-function getOperatorAndValueSqlFragment(operator: FilterNodeIR_FieldLevel['operator'], value: Value) {
+function getOperatorExpression(tblPrefix: string, operator: FilterNodeIR_FieldLevel['operator'], value: Value) {
   switch(operator) {
     case '$eq': {
-      return value !== null ? `= ${getValueSqlFragment(value)}` : `IS NULL`;
+      return value !== null ? `${tblPrefix}.value = ${getValueSqlFragment(value)}` : `${tblPrefix}.type = 'null'`;
     }
     case '$gt': {
-      return `> ${getValueSqlFragment(value)}`;
+      return value !== null ? `${tblPrefix}.value > ${getValueSqlFragment(value)}` : `${tblPrefix}.value > -1e308`;
     }
     case '$gte': {
-      return `>= ${getValueSqlFragment(value)}`;
+      return value !== null ? `${tblPrefix}.value >= ${getValueSqlFragment(value)}` : `${tblPrefix}.value >= -1e308`;
     }
     case '$lt': {
-      return `< ${getValueSqlFragment(value)}`;
+      return `${tblPrefix}.value < ${getValueSqlFragment(value)}`;
     }
     case '$lte': {
-      return `<= ${getValueSqlFragment(value)}`;
+      return `${tblPrefix}.value <= ${getValueSqlFragment(value)}`;
     }
     case '$ne': {
-      return `<> ${getValueSqlFragment(value)}`;
+      return value !== null ? `${tblPrefix}.value <> ${getValueSqlFragment(value)}` : `${tblPrefix}.type <> 'null'`;
     }
   }
 

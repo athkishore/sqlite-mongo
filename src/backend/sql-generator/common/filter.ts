@@ -98,6 +98,23 @@ function getLeafSqlFragment({
   let segmentIdx = fieldPathSegments.length;
 
   if (segment && segmentCount === 1) {
+//     sqlFragment = `\
+// condition_${n} AS (
+//   SELECT 1 AS c${n}
+//   FROM (
+//     SELECT 
+//       CASE json_type(c.doc, '$.${segment}')
+//         WHEN 'array' THEN je.value
+//         ELSE json_extract(c.doc, '$.${segment}')
+//       END AS value
+//       FROM
+//       (SELECT 1) AS dummy
+//       LEFT JOIN ${JSON_TYPE}_each(c.doc, '$.${segment}') AS je
+//         ON json_type(c.doc, '$.${segment}') = 'array'
+//   ) AS node
+//   WHERE 
+//     node.value ${getOperatorSqlFragment(operator)} ${getValueSqlFragment(value)}
+// )`;
     sqlFragment = `\
 condition_${n} AS (
   SELECT 1 AS c${n}
@@ -113,7 +130,7 @@ condition_${n} AS (
         ON json_type(c.doc, '$.${segment}') = 'array'
   ) AS node
   WHERE 
-    node.value ${getOperatorSqlFragment(operator)} ${getValueSqlFragment(value)}
+    node.value ${getOperatorAndValueSqlFragment(operator, value)}
 )`;
 
     return sqlFragment;
@@ -187,4 +204,28 @@ export function getValueSqlFragment(value: Value) {
   }
 
   throw new Error('Unknown type for value: ' + value);
+}
+
+function getOperatorAndValueSqlFragment(operator: FilterNodeIR_FieldLevel['operator'], value: Value) {
+  switch(operator) {
+    case '$eq': {
+      return value !== null ? `= ${getValueSqlFragment(value)}` : `IS NULL`;
+    }
+    case '$gt': {
+      return `> ${getValueSqlFragment(value)}`;
+    }
+    case '$gte': {
+      return `>= ${getValueSqlFragment(value)}`;
+    }
+    case '$lt': {
+      return `< ${getValueSqlFragment(value)}`;
+    }
+    case '$lte': {
+      return `<= ${getValueSqlFragment(value)}`;
+    }
+    case '$ne': {
+      return `<> ${getValueSqlFragment(value)}`;
+    }
+  }
+
 }

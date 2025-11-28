@@ -1,0 +1,13 @@
+[
+  {
+    "collection": "users",
+    "documents": [
+      {
+        "username": "user1"
+      },
+      {
+        "username": "user2"
+      }
+    ]
+  }
+]

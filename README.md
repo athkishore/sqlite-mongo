@@ -25,7 +25,7 @@ npm install
 
 3. Start the ChikkaDB server. By default it will listen on port 9000, but you can override that using the `--port` CLI argument.
 ```shell
-npm run serve --port 27017
+npm run serve -- --port 27017
 ```
 
 Connect to ChikkaDB using your favourite MongoDB client and happy databasing!

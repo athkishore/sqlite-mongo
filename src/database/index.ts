@@ -3,9 +3,7 @@ import fs from 'fs';
 
 const DB_PATH = 'data/db';
 
-
-
-export const db = new Database(`${DB_PATH}/test.sqlite`);
+if (!fs.existsSync(DB_PATH)) fs.mkdirSync(DB_PATH, { recursive: true });
 
 export function listDatabases() {
   const filenames = fs.readdirSync(DB_PATH);

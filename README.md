@@ -11,16 +11,15 @@ The name of the project is a tribute to the beautiful city of Bengaluru in the d
 The idea for this project is the result of my frustration at mongod being restricted to a narrow range of environments. For a while, I was hopeful that [FerretDB](https://www.ferretdb.com/) would fill the gap, but with v2 they have completely dropped the SQLite backend to focus on Postgres.
 
 # Get Started
-You will need a machine with nodejs installed. 
+Clone this repository a machine with nodejs installed. 
 
-1. Clone this repository
-```shell
-git clone git@github.com:athkishore/chikkadb-ts.git
-```
-
-2. Install dependencies
+1. Install dependencies
 ```shell
 npm install
+```
+2. Build the typescript source.
+```shell
+npm run build
 ```
 
 3. Start the ChikkaDB server. By default it will listen on port 9000, but you can override that using the `--port` CLI argument.

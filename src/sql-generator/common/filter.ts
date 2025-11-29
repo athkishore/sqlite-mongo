@@ -158,7 +158,7 @@ WHERE EXISTS (
     SELECT
       CASE json_type(c${n}_p${segmentIdx - 1}.value, '$.${segment}')
         WHEN 'array' THEN je.type
-        ELSE json_type(c${n}_p${segmentIdx - 1}.value)
+        ELSE json_type(c${n}_p${segmentIdx - 1}.value, '$.${segment}')
       END AS type,
       CASE json_type(c${n}_p${segmentIdx - 1}.value, '$.${segment}')
         WHEN 'array' THEN je.value
@@ -171,6 +171,7 @@ WHERE EXISTS (
   ) AS node
   WHERE
     ${getOperatorExpression('node', operator, value)}
+  LIMIT 1
 )
 `;
     } else if (segmentIdx > 0) {
@@ -188,7 +189,7 @@ WHERE EXISTS (
     SELECT
       CASE json_type(c${n}_p${segmentIdx - 1}.value, '$.${segment}')
         WHEN 'array' THEN je.type
-        ELSE json_type(c${n}_p${segmentIdx - 1}.value)
+        ELSE json_type(c${n}_p${segmentIdx - 1}.value, '$.${segment}')
       END AS type,
       CASE json_type(c${n}_p${segmentIdx - 1}.value, '$.${segment}')
         WHEN 'array' THEN je.value
@@ -199,6 +200,7 @@ WHERE EXISTS (
       LEFT JOIN ${JSON_TYPE}_each(c${n}_p${segmentIdx - 1}.value, '$.${segment}') AS je
         ON json_type(c${n}_p${segmentIdx - 1}.value, '$.${segment}') = 'array'
   ) AS c${n}_p${segmentIdx} ${sqlFragment}
+  LIMIT 1
 )      
 `;
     } else {
@@ -220,6 +222,7 @@ condition_${n} AS (
     LEFT JOIN ${JSON_TYPE}_each(c.doc, '$.${segment}') AS je
       ON json_type(c.doc, '$.${segment}') = 'array'
   ) AS c${n}_p${segmentIdx} ${sqlFragment}
+  LIMIT 1
 )      
 `;
     }

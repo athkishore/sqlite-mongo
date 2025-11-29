@@ -8,7 +8,9 @@ ChikkaDB is a server application providing a translation layer around [SQLite](h
 
 The name of the project is a tribute to the beautiful city of Bengaluru in the diverse southern Indian state of Karnataka, where this project was born. 'Chikka' in Kannada means 'small', 'little', 'young' (as in younger sibling), etc.
 
-The idea for this project is the result of my frustration at mongod being restricted to a narrow range of environments. For a while, I was hopeful that [FerretDB](https://www.ferretdb.com/) would fill the gap, but with v2 they have completely dropped the SQLite backend to focus on Postgres.
+The idea for this project is the result of my frustration at `mongod` being restricted to a narrow range of environments, and my growing curiosity around the possibilities of JSON in SQLite. 
+
+I would like to acknowledge [FerretDB](https://www.ferretdb.com/) as my main inspiration. I hadn't imagined myself embarking on such an ambitious project, but when FerretDB completely dropped the SQLite backend to focus on Postgres in their v2, I felt it might be fun to build something in that space.
 
 # Get Started
 Clone this repository a machine with [Node.js](https://nodejs.org) installed. 

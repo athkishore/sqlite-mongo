@@ -8,9 +8,12 @@
     "serve": "node dist/src/frontend/server/cmd/server.js"
   },
   "imports": {
-    "#backend/*": "./dist/src/backend/*",
-    "#frontend/*": "./dist/src/frontend/*",
-    "#shared/*": "./dist/src/shared/*"
+    "#src/*": "./dist/src/*",
+    "#query-parser/*": "./dist/src/query-parser/*",
+    "#command-handler/*": "./dist/src/command-handler/*",
+    "#server/*": "./dist/src/server/*",
+    "#database/*": "./dist/src/database/*",
+    "#sql-generator/*": "./dist/src/sql-generator/*"
   },
   "keywords": [],
   "author": "",

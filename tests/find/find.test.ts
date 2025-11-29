@@ -1,5 +1,5 @@
-import { generateAndExecuteSQLFromQueryIR } from "#backend/sql-generator/index.js";
-import type { FindCommandIR } from "#shared/types.js";
+import { generateAndExecuteSQLFromQueryIR } from "#sql-generator/index.js";
+import type { FindCommandIR } from "../../src/types.js";
 import assert from "assert";
 import Database from "better-sqlite3";
 import { ObjectId } from "bson";

@@ -1,9 +1,9 @@
 import Database from 'better-sqlite3';
 import { ObjectId } from 'bson';
 import { before, describe, it } from 'node:test';
-import { generateAndExecuteSQLFromQueryIR } from '#backend/sql-generator/index.js';
+import { generateAndExecuteSQLFromQueryIR } from '#sql-generator/index.js';
 import assert from 'assert';
-import type { InsertCommandIR } from '#shared/types.js';
+import type { InsertCommandIR } from '../../src/types.js';
 
 const collection = 'users';
 const documents = [

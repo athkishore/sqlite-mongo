@@ -1,5 +1,7 @@
 import type { Database } from "better-sqlite3";
 import { validateIdentifier } from "./utils.js";
+import type { CountCommandIR, FilterNodeIR } from "#src/types.js";
+import { getWhereClauseFromAugmentedFilter, traverseFilterAndTranslateCTE, type TranslationContext } from "./common/filter.js";
 
 export function generateAndExecuteSQL_Count(command: CountCommandIR, db: Database) {
   const { collection, database } = command;
@@ -7,7 +9,12 @@ export function generateAndExecuteSQL_Count(command: CountCommandIR, db: Databas
 
   if (!isCollectionNameValid) throw new Error('Invalid Collection Name');
 
-  const stmt = db.prepare(`SELECT COUNT(DISTINCT id) FROM ${collection}`);
+  // const stmt = db.prepare(`SELECT COUNT(DISTINCT id) FROM ${collection}`);
+  // const result = stmt.get();
+
+  const sql = translateQueryToSQL({ collection, filter: command.filter })
+  console.log(sql);
+  const stmt = db.prepare(sql);
   const result = stmt.get();
 
   return {
@@ -16,8 +23,43 @@ export function generateAndExecuteSQL_Count(command: CountCommandIR, db: Databas
   };
 }
 
-type CountCommandIR = {
-  command: 'count';
-  database: string;
+function translateQueryToSQL({
+  collection,
+  filter,
+}: {
   collection: string;
-};
+  filter: FilterNodeIR;
+}) {
+  if (filter.operator === '$and' && filter.operands.length === 0) {
+    return `SELECT COUNT(DISTINCT(id)) FROM ${collection} c`;
+  }
+
+  const context: TranslationContext = {
+    conditionCTEs: [],
+  };
+
+  traverseFilterAndTranslateCTE(filter, context);
+
+  const whereFragment = getWhereClauseFromAugmentedFilter(filter, context);
+
+  const { conditionCTEs } = context;
+
+  let sql = `\
+SELECT COUNT(DISTINCT(c.id))
+FROM ${collection} c
+WHERE EXISTS (
+  WITH
+  ${conditionCTEs.join(',')}
+  SELECT 1
+  ${conditionCTEs.map((_, index) => {
+    return index === 0
+      ? `FROM condition_${index} c${index}`
+      : `FULL OUTER JOIN condition_${index} c${index} ON 1=1`;
+  }).join('\n')}
+  WHERE
+    ${whereFragment}
+)
+`;
+
+  return sql;
+}

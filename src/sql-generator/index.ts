@@ -70,7 +70,12 @@ export function generateAndExecuteSQLFromQueryIR(commandIR: CommandIR, db: Datab
 export function executeQueryIR(command: CommandIR) : any {
   try {
     const db = getDatabase(command.database);
+
+    const start = Date.now();
     const result = generateAndExecuteSQLFromQueryIR(command, db);
+    const end = Date.now();
+
+    console.log(`Executed in ${end-start} ms`);
 
     db.close();
     return result;

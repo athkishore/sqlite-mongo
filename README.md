@@ -4,13 +4,19 @@
 
 # Introduction
 
-ChikkaDB is envisaged as a mongod-compatible server application, which you can connect to using any of your favourite MongoDB clients or language drivers. The plan is to use [SQLite](https://sqlite.org/) as the storage backend.
+ChikkaDB is a server application providing translation layer around [SQLite](https://sqlite.org/) that enables you to use SQLite as a MongoDB-compatible JSON database. You can connect to ChikkaDB using any of your favourite MongoDB clients or language drivers.
 
 The name of the project is a tribute to the beautiful city of Bengaluru in the diverse southern Indian state of Karnataka, where this project was born. 'Chikka' in Kannada means 'small', 'little', 'young' (as in younger sibling), etc.
 
 The idea for this project is the result of my frustration at mongod being restricted to a narrow range of environments. For a while, I was hopeful that [FerretDB](https://www.ferretdb.com/) would fill the gap, but with v2 they have completely dropped the SQLite backend to focus on Postgres.
 
-The goals of ChikkaDB are ambitious and modest at once. It will never aim to be a full-fledged distributed database - no replication or sharding. However, it aims to implement as completely as possible the rich MongoDB commands (including sessions). So completely as to be able to effectively substitute mongod with ChikkaDB for single-node operations.
+# Compatibility with MongoDB
+
+ChikkaDB aims to implement a rich subset of the MongoDB commands that unlock the power of SQLite's JSON and JSONB functions. It doesn't aim for completeness in compatibility, since MongoDB has some obscure commands. The selection of commands and operators is based on the expressive value they add in interacting with JSON data stored in SQLite. 
+
+The ChikkaDB server is wire-compatible with `mongod`, so you can connect to ChikkaDB using any of your favourite MongoDB clients or language drivers.
+
+ChikkaDB looks at data from the lens of JSON, like SQLite does, so it doesn't aim for BSON-compatibility. There are significant differences, especially when it comes to comparison of values of different types, but these should not be a big issue in practicse. A lot of people use MongoDB simply as a JSON database, without being aware of the complexity of BSON types. In such cases, ChikkaDB could be a drop-in replacement.
 
 # Architecture
 

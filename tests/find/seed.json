@@ -8,6 +8,7 @@
         "active": true,
         "homepage": null,
         "age": 25,
+        "follows": ["user3", "user2"],
         "phones": [
           {
             "type": "mobile",
@@ -31,6 +32,7 @@
         "active": false,
         "homepage": "https://user2.example.org",
         "age": 37,
+        "follows": [],
         "phones": [
           {
             "type": "mobile",
@@ -47,7 +49,8 @@
         "username": "user3",
         "email": "user3@example.org",
         "active": false,
-        "age": 37,
+        "follows": ["user2"],
+        "age": 43,
         "phones": [
           
         ],

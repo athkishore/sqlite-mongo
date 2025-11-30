@@ -60,51 +60,85 @@ describe('find command', () => {
   });
 
   describe('filters a document by top-level string field', () => {
-    it('using $eq', () => {
-      const command: FindCommandIR = {
-        command: 'find',
-        database: 'test',
-        collection: seedCollections[0].collection,
-        filter: { operator: '$eq', operands: [{ $ref: 'username' }, 'user1']},
-      };
+    describe('string', () => {
+      it('using $eq', () => {
+        const command: FindCommandIR = {
+          command: 'find',
+          database: 'test',
+          collection: seedCollections[0].collection,
+          filter: { operator: '$eq', operands: [{ $ref: 'username' }, 'user1']},
+        };
+    
+        const sqlResult = generateAndExecuteSQLFromQueryIR(command, db);
+        const sqlResultDocuments = sqlResult.cursor.firstBatch;
+    
+        assert.equal(sqlResultDocuments.length, 1);
+        assert.equal(sqlResultDocuments[0].username, 'user1');
+      });
   
-      const sqlResult = generateAndExecuteSQLFromQueryIR(command, db);
-      const sqlResultDocuments = sqlResult.cursor.firstBatch;
+      it('using $gt', () => {
+        const command: FindCommandIR = {
+          command: 'find',
+          database: 'test',
+          collection: seedCollections[0].collection,
+          filter: { operator: '$gt', operands: [{ $ref: 'username' }, 'user2' ] },
+        };
   
-      assert.equal(sqlResultDocuments.length, 1);
-      assert.equal(sqlResultDocuments[0].username, 'user1');
+        const sqlResult = generateAndExecuteSQLFromQueryIR(command, db);
+        const sqlResultDocuments = sqlResult.cursor.firstBatch;
+  
+        assert.equal(sqlResultDocuments.length, 1);
+        assert.equal(sqlResultDocuments[0].username, 'user3');
+      });
+  
+      it('using $gte', () => {
+        const command: FindCommandIR = {
+          command: 'find',
+          database: 'test',
+          collection: seedCollections[0].collection,
+          filter: { operator: '$gte', operands: [{ $ref: 'username' }, 'user2'] },
+        };
+  
+        const sqlResult = generateAndExecuteSQLFromQueryIR(command, db);
+        const sqlResultDocuments = sqlResult.cursor.firstBatch;
+  
+        assert.equal(sqlResultDocuments.length, 2);
+        for (const document of sqlResultDocuments) {
+          assert(document.username >= 'user2');
+        }
+      });
     });
 
-    it('using $gt', () => {
-      const command: FindCommandIR = {
-        command: 'find',
-        database: 'test',
-        collection: seedCollections[0].collection,
-        filter: { operator: '$gt', operands: [{ $ref: 'username' }, 'user2' ] },
-      };
+    describe('array', () => {
+      it('primitive value - using $eq', () => {
+        const command: FindCommandIR = {
+          command: 'find',
+          database: 'test',
+          collection: seedCollections[0].collection,
+          filter: { operator: '$eq', operands: [{ $ref: 'follows' }, 'user2'] },
+        };
 
-      const sqlResult = generateAndExecuteSQLFromQueryIR(command, db);
-      const sqlResultDocuments = sqlResult.cursor.firstBatch;
+        const sqlResult = generateAndExecuteSQLFromQueryIR(command, db);
+        const sqlResultDocuments = sqlResult.cursor.firstBatch;
 
-      assert.equal(sqlResultDocuments.length, 1);
-      assert.equal(sqlResultDocuments[0].username, 'user3');
-    });
+        assert.equal(sqlResultDocuments.length, 2);
+      });
 
-    it('using $gte', () => {
-      const command: FindCommandIR = {
-        command: 'find',
-        database: 'test',
-        collection: seedCollections[0].collection,
-        filter: { operator: '$gte', operands: [{ $ref: 'username' }, 'user2'] },
-      };
+      it('array value - using $eq - returns only exact matches', () => {
+        {
+          const command: FindCommandIR = {
+            command: 'find',
+            database: 'test',
+            collection: seedCollections[0].collection,
+            filter: { operator: '$eq', operands: [{ $ref: 'follows' }, ['user3', 'user2']] },
+          };
+  
+          const sqlResult = generateAndExecuteSQLFromQueryIR(command, db);
+          const sqlResultDocuments = sqlResult.cursor.firstBatch;
 
-      const sqlResult = generateAndExecuteSQLFromQueryIR(command, db);
-      const sqlResultDocuments = sqlResult.cursor.firstBatch;
-
-      assert.equal(sqlResultDocuments.length, 2);
-      for (const document of sqlResultDocuments) {
-        assert(document.username >= 'user2');
-      }
+          assert.equal(sqlResultDocuments.length, 1);
+        }
+      })
     })
   });
 

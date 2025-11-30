@@ -132,12 +132,16 @@ WHERE EXISTS (
       CASE typeof(prev.key)
         WHEN 'integer' THEN json_extract(prev.value, '$.${segment}')
         ELSE prev.value
-      END as value
+      END as value,
+      CASE typeof(prev.key)
+        WHEN 'integer' THEN max(1) OVER ()
+        ELSE sum(prev.key = '${segment}') OVER ()
+      END AS _exists
     FROM
       (SELECT c${n}_p${segmentIdx - 1}.key as key, c${n}_p${segmentIdx - 1}.type as type, c${n}_p${segmentIdx - 1}.value) AS prev
   ) AS node
   WHERE
-    node.key = '${segment}' AND (${getOperatorExpression('node', segment, operator, value)})
+    (${getOperatorExpression('node', segment, operator, value)})
   LIMIT 1
 )
 `;

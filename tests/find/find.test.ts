@@ -198,7 +198,23 @@ const suite: Suite = {
           },
           expect: result => result.length === 1
             && result[0]!.username === 'user1',
-        }
+        },
+        {
+          type: 'test',
+          name: 'using $exists: true',
+          input: {
+            filter: { 'address.pin': { $exists: true } },
+          },
+          expect: result => result.length === 2,
+        },
+        // {
+        //   type: 'test',
+        //   name: 'using $exists: false',
+        //   input: {
+        //     filter: { 'address.pin': { $exists: false } },
+        //   },
+        //   expect: result => result.length === 1,
+        // }
       ]
     },
     {

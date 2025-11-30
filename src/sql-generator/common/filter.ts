@@ -97,28 +97,6 @@ function getLeafSqlFragment({
   let segmentIdx = fieldPathSegments.length;
 
   if (segment && segmentCount === 1) {
-//     sqlFragment = `\
-// condition_${n} AS (
-//   SELECT 1 AS c${n}
-//   FROM (
-//     SELECT 
-//       CASE json_type(c.doc, '$.${segment}')
-//         WHEN 'array' THEN je.type
-//         ELSE json_type(c.doc, '$.${segment}')
-//       END AS type,
-//       CASE json_type(c.doc, '$.${segment}')
-//         WHEN 'array' THEN je.value
-//         ELSE json_extract(c.doc, '$.${segment}')
-//       END AS value
-//       FROM
-//       (SELECT 1) AS dummy
-//       LEFT JOIN ${JSON_TYPE}_each(c.doc, '$.${segment}') AS je
-//         ON json_type(c.doc, '$.${segment}') = 'array'
-//   ) AS node
-//   WHERE 
-//     ${getOperatorExpression('node', operator, value)}
-// )`;
-
       sqlFragment = `\
 condition_${n} AS (
   SELECT 1 AS c${n}

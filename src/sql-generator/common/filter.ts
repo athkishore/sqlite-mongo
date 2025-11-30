@@ -104,11 +104,12 @@ condition_${n} AS (
     SELECT 
       je.key AS key,
       je.type AS type,
-      je.value AS value
+      je.value AS value,
+      max(je.key = '${segment}') OVER () AS _exists
       FROM ${JSON_TYPE}_each(c.doc) AS je
   ) AS node
   WHERE
-    node.key = '${segment}' AND (${getOperatorExpression('node', operator, value)})
+    (${getOperatorExpression('node', segment, operator, value)})
 )`;
 
     return sqlFragment;
@@ -137,7 +138,7 @@ WHERE EXISTS (
       (SELECT c${n}_p${segmentIdx - 1}.key as key, c${n}_p${segmentIdx - 1}.type as type, c${n}_p${segmentIdx - 1}.value) AS prev
   ) AS node
   WHERE
-    node.key = '${segment}' AND (${getOperatorExpression('node', operator, value)})
+    node.key = '${segment}' AND (${getOperatorExpression('node', segment, operator, value)})
   LIMIT 1
 )
 `;
@@ -207,11 +208,12 @@ export function getValueSqlFragment(value: Value) {
   throw new Error('Unknown type for value: ' + value);
 }
 
-function getOperatorExpression(tblPrefix: string, operator: FilterNodeIR_FieldLevel['operator'], value: Value) {
+function getOperatorExpression(tblPrefix: string, segment: string, operator: FilterNodeIR_FieldLevel['operator'], value: Value) {
   switch(operator) {
     case '$eq': {
       let s = '';
 
+      s += `${tblPrefix}.key = '${segment}' AND \n`;
       s += `CASE ${tblPrefix}.type\n`;
       s += `  WHEN 'array' THEN EXISTS(\n`;
       s += `    SELECT 1\n`;
@@ -223,23 +225,28 @@ function getOperatorExpression(tblPrefix: string, operator: FilterNodeIR_FieldLe
       return s;
     }
     case '$gt': {
-      return value !== null ? `${tblPrefix}.value > ${getValueSqlFragment(value)}` : `${tblPrefix}.value > -1e308`;
+      return value !== null 
+        ? `${tblPrefix}.key = '${segment}' AND ${tblPrefix}.value > ${getValueSqlFragment(value)}` 
+        : `${tblPrefix}.key = '${segment}' AND ${tblPrefix}.value > -1e308`;
     }
     case '$gte': {
-      return value !== null ? `${tblPrefix}.value >= ${getValueSqlFragment(value)}` : `${tblPrefix}.value >= -1e308`;
+      return value !== null 
+        ? `${tblPrefix}.key = '${segment}' AND ${tblPrefix}.value >= ${getValueSqlFragment(value)}` 
+        : `${tblPrefix}.key = '${segment} AND '${tblPrefix}.value >= -1e308`;
     }
     case '$lt': {
-      return `${tblPrefix}.value < ${getValueSqlFragment(value)}`;
+      return `${tblPrefix}.key = '${segment}' AND ${tblPrefix}.value < ${getValueSqlFragment(value)}`;
     }
     case '$lte': {
-      return `${tblPrefix}.value <= ${getValueSqlFragment(value)}`;
+      return `${tblPrefix}.key = '${segment}' AND ${tblPrefix}.value <= ${getValueSqlFragment(value)}`;
     }
     case '$ne': {
-      return value !== null ? `${tblPrefix}.value <> ${getValueSqlFragment(value)}` : `${tblPrefix}.type <> 'null'`;
+      return value !== null 
+        ? `${tblPrefix}.key = '${segment}' AND ${tblPrefix}.value <> ${getValueSqlFragment(value)}` : `${tblPrefix}.type <> 'null'`;
     }
 
     case '$exists': {
-      return Boolean(value) ? `${tblPrefix}.type IS NOT NULL` : `${tblPrefix}.type IS NULL`;
+      return Boolean(value) ? `${tblPrefix}._exists > 0` : `${tblPrefix}._exists = 0`;
     }
   }
 

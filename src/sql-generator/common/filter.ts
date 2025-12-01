@@ -289,7 +289,7 @@ function getOperatorExpression(tblPrefix: string, segment: string, operator: Fil
       s += `  WHEN 'array' THEN NOT EXISTS(\n`;
       s += `    SELECT 1\n`;
       s += `    FROM ${JSON_TYPE}_each(${tblPrefix}.value) AS _je\n`;
-      s += `    WHERE ${value !== null ? `${tblPrefix}.value = ${getValueSqlFragment(value)}` : `${tblPrefix}.type = 'null'`}\n`;
+      s += `    WHERE ${value !== null ? `_je.value = ${getValueSqlFragment(value)}` : `_je.type = 'null'`}\n`;
       s += `  )\n`;
       s += `  ELSE ${value !== null ? `${tblPrefix}.value <> ${getValueSqlFragment(value)}` : `${tblPrefix}.type <> 'null'`}\n`;
       s += `END\n`;

@@ -182,19 +182,19 @@ const suite: Suite = {
               },
               expect: result => result.length === 2,
             },
-            // {
-            //   type: 'test',
-            //   name: 'primitive value - using $ne',
-            //   input: {
-            //     filter: { follows: { $ne: 'user3' } },
-            //   },
-            //   expect: result => {
-            //     const usernames = result.map(el => el.username);
-            //     return usernames.length === 2
-            //       && usernames.includes('user2')
-            //       && usernames.includes('user3');
-            //   },
-            // },
+            {
+              type: 'test',
+              name: 'primitive value - using $ne',
+              input: {
+                filter: { follows: { $ne: 'user3' } },
+              },
+              expect: result => {
+                const usernames = result.map(el => el.username);
+                return usernames.length === 2
+                  && usernames.includes('user2')
+                  && usernames.includes('user3');
+              },
+            },
             {
               type: 'test',
               name: 'array value - using $eq - returns exact match',

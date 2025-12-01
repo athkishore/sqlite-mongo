@@ -100,6 +100,40 @@ const suite: Suite = {
                   && usernames.includes('user2')
                   && usernames.includes('user3');
               },
+            },
+            {
+              type: 'test',
+              name: 'using $lt',
+              input: {
+                filter: { username: { $lt: 'user2' } },
+              },
+              expect: result => result.length === 1 && result[0]!.username === 'user1',
+            },
+            {
+              type: 'test',
+              name: 'using $lte',
+              input: {
+                filter: { username: { $lte: 'user2' } },
+              },
+              expect: result => {
+                const usernames = result.map(el => el.username);
+                return usernames.length === 2
+                  && usernames.includes('user1')
+                  && usernames.includes('user2');
+              },
+            },
+            {
+              type: 'test',
+              name: 'using $ne',
+              input: {
+                filter: { username: { $ne: 'user2' } },
+              },
+              expect: result => {
+                const usernames = result.map(el => el.username);
+                return usernames.length === 2
+                  && usernames.includes('user1')
+                  && usernames.includes('user3');
+              },
             }
           ]
         },
@@ -228,6 +262,18 @@ const suite: Suite = {
             filter: { 'phones.type': 'mobile' },
           },
           expect: result => result.length === 2,
+        },
+        {
+          type: 'test',
+          name: 'using $exists: true',
+          input: { filter: { 'phones.type': { $exists: true } } },
+          expect: result => result.length === 2,
+        },
+        {
+          type: 'test',
+          name: 'using $exists: false',
+          input: { filter: { 'phones.type': { $exists: false } } },
+          expect: result => result.length === 1,
         }
       ],
     }

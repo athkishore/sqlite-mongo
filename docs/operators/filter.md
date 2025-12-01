@@ -1,15 +1,15 @@
 # Filter
 
-The filter is an object (in other words, a document) that specifies the conditions to be matched during a command. It is an input component of `count`, `find`, `findAndModify`, `update`, `delete`, etc.
+The filter is an object (in other words, a document) that specifies the conditions to be matched during a command. It is an input component of several commands such as `count`, `find`, `findAndModify`, `update`, `delete`, etc.
 
 This page lists the various formats in which filter expressions can be specified in a filter object, in accordance with the MongoDB query language. The following cases have been [tested](/tests/find/find.test.ts) for correctness.
 
-1. Empty filter - select all documents in a collection
+#### 1. Empty filter - select all documents in a collection
 ```typescript
 {}
 ```
 
-2. Implicit equality condition for top-level fields
+#### 2. Implicit equality condition for top-level fields
 Example:
 ```typescript
 { 
@@ -17,7 +17,7 @@ Example:
 }
 ```
 
-3. Explicit conditions using [filter operators](./filter-operators.md)
+#### 3. Explicit conditions using [filter operators](./filter-operators.md)
 Examples:
 ```typescript
 {
@@ -30,7 +30,7 @@ Examples:
 }
 ```
 
-4. Composite conditions using [logical operators](./filter-operators.md#logical-operators)
+#### 4. Composite conditions using [logical operators](./filter-operators.md#logical-operators)
 Example:
 ```typescript
 {
@@ -41,7 +41,7 @@ Example:
 }
 ```
 
-5. Conditions involving nested fields
+#### 5. Conditions involving nested fields
 Examples:
 ```typescript
 {
@@ -54,7 +54,7 @@ Examples:
 }
 ```
 
-6. Implicitly match elements of an array field
+#### 6. Implicitly match elements of an array field
 
 The following returns a match if either the value or `roles` is `"admin"` or `roles` is an array containing the value `"admin"`.
 
@@ -72,7 +72,7 @@ If an array value is provided, it looks for an exact match (matching only if the
 }
 ```
 
-7. Impicit conditions on nested fields in an array of objects
+#### 7. Impicit conditions on nested fields in an array of objects
 
 The following condition matches both an object field `phones` which has a nested field `type` with value `"mobile"`, as well as an array field `phones` in which at least one element is an object with the nested field `type` having value `"mobile"`.
 
@@ -95,4 +95,5 @@ The following condition matches both an object field `phones` which has a nested
 }
 ```
 
+---
 Reference: https://www.mongodb.com/docs/v7.0/tutorial/query-documents/

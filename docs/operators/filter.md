@@ -82,7 +82,7 @@ The following condition matches both an object field `phones` which has a nested
 }
 ```
 
-8. Explicit array index matching
+#### 8. Explicit array index matching
 
 ```typescript
 {

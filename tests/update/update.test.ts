@@ -93,6 +93,24 @@ const suite: Suite = {
               && result[0]!.y === 'bar';
           },
         },
+        {
+          type: 'test',
+          name: 'using $unset',
+          input: {
+            filter: { username: 'user1' },
+            update: {
+              $unset: {
+                active: null,
+              },
+            },
+          },
+          expect: (result, originalDocs) => {
+            console.log(result, originalDocs);
+            return result.length === 1
+              && result[0]!.username === 'user1'
+              && result[0]!.active === undefined;
+          }
+        }
       ]
     },
     {

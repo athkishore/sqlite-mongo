@@ -322,6 +322,27 @@ const suite: Suite = {
           expect: result => result.length === 1,
         }
       ],
+    },
+    {
+      type: 'suite',
+      name: 'using $not operator',
+      children: [
+        {
+          type: 'test',
+          name: 'filters documents matching not $eq',
+          input: {
+            filter: {
+              age: { $not: { $eq: 25 } },
+            },
+          },
+          expect: result => {
+            const usernames = result.map(u => u.username);
+            return usernames.length === 2
+              && usernames.includes('user2')
+              && usernames.includes('user3');
+          },
+        }
+      ]
     }
   ]
 };

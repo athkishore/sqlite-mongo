@@ -172,7 +172,8 @@ export type FilterNodeIR_FieldLevel =
   | FilterNodeIR_$lt
   | FilterNodeIR_$lte
   | FilterNodeIR_$ne
-  | FilterNodeIR_$exists;
+  | FilterNodeIR_$exists
+  | FilterNodeIR_$not;
 
 export type FilterNodeIR_$and = {
   operator: '$and';
@@ -187,6 +188,11 @@ export type FilterNodeIR_$or = {
 export type FilterNodeIR_$nor = {
   operator: '$nor';
   operands: FilterNodeIR[];
+};
+
+export type FilterNodeIR_$not = {
+  operator: '$not';
+  operands: [FilterNodeIR];
 };
 
 export type FilterNodeIR_$eq = {
@@ -244,6 +250,8 @@ export const FIELD_LEVEL_FILTER_OPERATORS = [
   '$ne',
 
   '$exists',
+
+  '$not',
 ] as const;
 
 export const DOC_LEVEL_FILTER_OPERATORS = [

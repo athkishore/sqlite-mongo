@@ -1,13 +1,15 @@
-import type { 
-  FilterDoc, 
-  FilterNodeIR,
-  FilterNodeIR_$eq,
-  FilterNodeIR_$exists,
-  FilterNodeIR_$gt,
-  FilterNodeIR_$gte,
-  FilterNodeIR_$lt,
-  FilterNodeIR_$lte,
-  FilterNodeIR_$ne, 
+import { 
+  FIELD_LEVEL_FILTER_OPERATORS,
+  type FilterDoc, 
+  type FilterNodeIR,
+  type FilterNodeIR_$eq,
+  type FilterNodeIR_$exists,
+  type FilterNodeIR_$gt,
+  type FilterNodeIR_$gte,
+  type FilterNodeIR_$lt,
+  type FilterNodeIR_$lte,
+  type FilterNodeIR_$ne,
+  type FilterNodeIR_$nor, 
 } from "../../types.js";
 
 
@@ -96,7 +98,7 @@ const parsers = {
       try {
         const isParentKeyOperator = parentKey ? /^\$/.test(parentKey) : false;
 
-        if (!parentKey || isParentKeyOperator) {
+        if (!parentKey || (isParentKeyOperator && parentKey !== '$not')) {
           throw new Error(`$eq should have a field reference as the parent key`);
         }
 
@@ -117,7 +119,7 @@ const parsers = {
       try {
         const isParentKeyOperator = parentKey ? /^\$/.test(parentKey) : false;
 
-        if (!parentKey || isParentKeyOperator) {
+        if (!parentKey || (isParentKeyOperator && parentKey !== '$not')) {
           throw new Error(`$gt should have a field reference as the parent key`);
         }
 
@@ -138,7 +140,7 @@ const parsers = {
       try {
         const isParentKeyOperator = parentKey ? /^\$/.test(parentKey) : false;
 
-        if (!parentKey || isParentKeyOperator) {
+        if (!parentKey || (isParentKeyOperator && parentKey !== '$not')) {
           throw new Error('$gte should have a field reference as the parent key');
         }
 
@@ -159,7 +161,7 @@ const parsers = {
       try {
         const isParentKeyOperator = parentKey ? /^\$/.test(parentKey) : false;
 
-        if (!parentKey || isParentKeyOperator) {
+        if (!parentKey || (isParentKeyOperator && parentKey !== '$not')) {
           throw new Error('$lt should have a field reference as the parent key');
         }
 
@@ -180,7 +182,7 @@ const parsers = {
       try {
         const isParentKeyOperator = parentKey ? /^\$/.test(parentKey) : false;
 
-        if (!parentKey || isParentKeyOperator) {
+        if (!parentKey || (isParentKeyOperator && parentKey !== '$not')) {
           throw new Error('$lte should have a field reference as the parent key');
         }
 
@@ -201,7 +203,7 @@ const parsers = {
       try {
         const isParentKeyOperator = parentKey ? /^\$/.test(parentKey) : false;
 
-        if (!parentKey || isParentKeyOperator) {
+        if (!parentKey || (isParentKeyOperator && parentKey !== '$not')) {
           throw new Error('$ne should have a field reference as the parent key');
         }
 
@@ -223,7 +225,7 @@ const parsers = {
       try {
         const isParentKeyOperator = parentKey ? /^\$/.test(parentKey) : false;
 
-        if (!parentKey || isParentKeyOperator) {
+        if (!parentKey || (isParentKeyOperator && parentKey !== '$not')) {
           throw new Error('$exists should have a field reference as the parent key');
         }
 
@@ -238,6 +240,40 @@ const parsers = {
           operator: '$nor',
           operands: [{ operator: '$exists', operands: [{ $ref: parentKey }, true]}]
         }] as any; // TODO: Find a better solution to this workaround
+      } catch (error) {
+        return [error as Error, null];
+      }
+    }
+  },
+
+  '$not': {
+    parse(
+      value: any,
+      { parentKey }: { parentKey: string | null }
+    ): [Error, null] | [null, FilterNodeIR_$nor] {
+      try {
+        const isParentKeyOperator = parentKey ? /^\$/.test(parentKey) : false;
+
+        if (!parentKey || isParentKeyOperator) {
+          throw new Error('$not should have a field referene as the parent key');
+        }
+
+        if (!value || typeof value !== 'object') {
+          throw new Error('$not should have an object value');
+        }
+
+        if (Object.keys(value).some(key => !FIELD_LEVEL_FILTER_OPERATORS.includes(key as any))) {
+          throw new Error('$not operand should have keys that are field-level operators');
+        }
+
+        const [error, parsedValue] = parseFilterDoc(value, { parentKey });
+
+        if (error) throw error;
+
+        return [null, {
+          operator: '$nor',
+          operands: [parsedValue],
+        }];
       } catch (error) {
         return [error as Error, null];
       }

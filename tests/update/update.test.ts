@@ -191,6 +191,7 @@ const suite: Suite = {
         /**
          * MongoDB returns an error while
          * ChikkaDB doesn't since SQLite json_set silently ignores it
+         * TODO: use RAISE() in SQL statements if needed
          */
         {
           type: 'test',
@@ -232,8 +233,47 @@ const suite: Suite = {
               && result[0]!.active === undefined;
           }
         },
+        // Add test for no change in the case of non-existent field
+        {
+          type: 'test',
+          name: 'removes existing nested field inside object',
+          input: {
+            filter: { username: 'user1' },
+            update: {
+              $unset: {
+                'address.x': null,
+              },
+            },
+          },
+          expect: (result) => {
+            return result.length === 1
+              && !('x' in result[0]!.address)
+              && result[0]!.address.y === 'bar';
+          },
+        },
+        /**
+         * Deviation in Behaviour:
+         * MongoDB sets the array element at index to null
+         * ChikkaDB removes the element and reduces the size of the array.
+         */
+        {
+          type: 'test',
+          name: 'removes array element at index',
+          input: {
+            filter: { username: 'user1' },
+            update: {
+              $unset: {
+                'follows.1': null,
+              },
+            },
+          },
+          expect: result => {
+            return result[0]!.follows.length === 1 
+              && !result[0]!.follows.includes('user2');
+          }
+        }
       ]
-    }
+    },
   ]
 };
 

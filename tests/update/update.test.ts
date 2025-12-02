@@ -271,6 +271,35 @@ const suite: Suite = {
             return result[0]!.follows.length === 1 
               && !result[0]!.follows.includes('user2');
           }
+        },
+        {
+          type: 'test',
+          name: 'does not implicitly remove nested fields from member objects of array field',
+          input: {
+            filter: { username: 'user1' },
+            update: {
+              $unset: {
+                'phones.type': null,
+              },
+            },
+          },
+          expect: result =>
+            result[0]!.phones.every((el: any) => 'type' in el)
+        },
+        {
+          type: 'test',
+          name: 'removes existing nested field in object at explcit array index',
+          input: {
+            filter: { username: 'user1' },
+            update: {
+              $unset: {
+                'phones.0.type': null,
+              },
+            },
+          },
+          expect: result => 
+            !('type' in result[0]!.phones[0])
+            && ('type' in result[0]!.phones[1]),
         }
       ]
     },

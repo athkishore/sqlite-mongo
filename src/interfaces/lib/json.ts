@@ -14,7 +14,7 @@ export function stringifyToCustomJSON(value: any) {
   } as any;
 
   Binary.prototype.toJSON = function(this: Binary) {
-    return { $binary: { base64: this.toString(), subType: this.sub_type.toString() } };
+    return { $binary: { base64: orig_Binary_toJSON.apply(this), subType: this.sub_type.toString() } };
   } as any;
 
   try {
@@ -40,7 +40,7 @@ export function parseFromCustomJSON(text: string) {
       }
 
       if (value.$binary) {
-        return new Binary(Buffer.from(value.$binary.base64), Number(value.$binary.subType));
+        return new Binary(Buffer.from(value.$binary.base64, 'base64'), Number(value.$binary.subType));
       }
     }
     return value;

@@ -2,6 +2,7 @@ import type { Database } from "better-sqlite3";
 import { validateIdentifier } from "./utils.js";
 import { ObjectId } from "bson";
 import type { InsertCommandIR, InsertCommandResult } from "../types.js";
+import { stringifyToCustomJSON } from "#src/interfaces/lib/json.js";
 
 export function generateAndExecuteSQL_Insert(command: InsertCommandIR, db: Database): InsertCommandResult {
   const { collection, documents } = command;
@@ -18,7 +19,7 @@ export function generateAndExecuteSQL_Insert(command: InsertCommandIR, db: Datab
       const { _id } = document;
       insert.run(
         _id instanceof ObjectId ? _id.toHexString() : _id,
-        JSON.stringify(document)
+        stringifyToCustomJSON(document),
       );
     }
   });

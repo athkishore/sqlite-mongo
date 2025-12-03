@@ -2,6 +2,7 @@ import type { FilterNodeIR, UpdateCommandIR, UpdateNodeIR } from "../types.js";
 import type { Database } from "better-sqlite3";
 import { getWhereClauseFromAugmentedFilter, traverseFilterAndTranslateCTE, type TranslationContext } from "./common/filter.js";
 import { getUpdateFragment } from "./common/update.js";
+import { parseFromCustomJSON } from "#src/interfaces/lib/json.js";
 
 
 export function generateAndExecuteSQL_Update(command: UpdateCommandIR, db: Database) {
@@ -27,7 +28,7 @@ export function generateAndExecuteSQL_Update(command: UpdateCommandIR, db: Datab
 
   return {
     cursor: {
-      firstBatch: result.map(el => JSON.parse((el as any).doc)),
+      firstBatch: result.map(el => parseFromCustomJSON((el as any).doc)),
       id: 0n,
       ns: `${database}.${collection}`,
     },

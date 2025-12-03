@@ -1,3 +1,4 @@
+import { parseFromCustomJSON, stringifyToCustomJSON } from '#src/interfaces/lib/json.js';
 import { parseUpdateCommand } from '#src/query-parser/update.js';
 import { generateAndExecuteSQLFromQueryIR } from '#src/sql-generator/index.js';
 import assert from 'assert';
@@ -12,7 +13,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const file = path.join(__dirname, './seed.json');
 
-const seedCollections = JSON.parse(fs.readFileSync(file, 'utf-8'));
+const seedCollections = parseFromCustomJSON(fs.readFileSync(file, 'utf-8'));
 
 let db: Database.Database;
 before(() => {
@@ -27,7 +28,7 @@ before(() => {
         const _id = new ObjectId();
         insert.run(
           _id.toHexString(),
-          JSON.stringify({ _id: _id.toHexString(), ...document })
+          stringifyToCustomJSON({ _id, ...document })
         );
       }
     });

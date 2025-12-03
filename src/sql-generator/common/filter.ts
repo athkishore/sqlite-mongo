@@ -1,4 +1,5 @@
 import config from "#src/config.js";
+import { stringifyToCustomJSON } from "#src/interfaces/lib/json.js";
 import { DOC_LEVEL_FILTER_OPERATORS, FIELD_LEVEL_FILTER_OPERATORS, type FieldReference, type FilterNodeIR, type FilterNodeIR_DocLevel, type FilterNodeIR_FieldLevel, type Value } from "../../types.js";
 
 export type TranslationContext = {
@@ -203,9 +204,9 @@ export function getValueSqlFragment(value: Value) {
   } else if (value === null) {
     return 'NULL';
   } else if (Array.isArray(value)) {
-    return `${JSON_TYPE}('${JSON.stringify(value)}')`;
+    return `${JSON_TYPE}('${stringifyToCustomJSON(value)}')`;
   } else if (typeof value === 'object') {
-    return `${JSON_TYPE}('${JSON.stringify(value)}')`;
+    return `${JSON_TYPE}('${stringifyToCustomJSON(value)}')`;
   }
 
   throw new Error('Unknown type for value: ' + value);

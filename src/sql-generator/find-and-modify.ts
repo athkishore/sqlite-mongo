@@ -2,6 +2,7 @@ import type { FilterNodeIR, FindAndModifyCommandIR, FindAndModifyCommandResult, 
 import type { Database } from "better-sqlite3";
 import { getWhereClauseFromAugmentedFilter, traverseFilterAndTranslateCTE, type TranslationContext } from "./common/filter.js";
 import { getUpdateFragment } from "./common/update.js";
+import { parseFromCustomJSON } from "#src/interfaces/lib/json.js";
 
 export function generateAndExecuteSQL_FindAndModify(command: FindAndModifyCommandIR, db: Database): FindAndModifyCommandResult {
   const { collection, filter, update } = command;
@@ -17,7 +18,7 @@ export function generateAndExecuteSQL_FindAndModify(command: FindAndModifyComman
   return {
     _type: 'findAndModify',
     ok: 1,
-    value: JSON.parse((result as any)?.doc),
+    value: parseFromCustomJSON((result as any)?.doc),
   };
 }
 

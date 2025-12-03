@@ -10,6 +10,7 @@ import {
   traverseFilterAndTranslateCTE, 
   type TranslationContext 
 } from "./common/filter.js";
+import { parseFromCustomJSON } from "#src/interfaces/lib/json.js";
 
 
 
@@ -84,7 +85,7 @@ export function generateAndExecuteSQL_Find(command: FindCommandIR, db: Database)
 
   return { 
     cursor: {
-      firstBatch: result.map(el => JSON.parse((el as any).doc)),
+      firstBatch: result.map(el => parseFromCustomJSON((el as any).doc)),
       id: 0n,
       ns: `${database}.${collection}`,
     },

@@ -4,6 +4,7 @@ import { before, describe, it } from 'node:test';
 import { generateAndExecuteSQLFromQueryIR } from '#sql-generator/index.js';
 import assert from 'assert';
 import type { InsertCommandIR } from '../../src/types.js';
+import { parseFromCustomJSON, stringifyToCustomJSON } from '#src/interfaces/lib/json.js';
 
 const collection = 'users';
 const documents = [
@@ -40,9 +41,9 @@ describe('insert command', () => {
 
     assert.equal(stmtResult.length, documents.length);
     for (const document of documents) {
-      const resultDocJSON = (stmtResult.find((el: any) => JSON.parse(el.doc).username === document.username) as any)?.doc;
+      const resultDocJSON = (stmtResult.find((el: any) => parseFromCustomJSON(el.doc).username === document.username) as any)?.doc;
 
-      assert.equal(JSON.stringify(document), resultDocJSON);
+      assert.equal(stringifyToCustomJSON(document), resultDocJSON);
     }
   });
 });

@@ -45,7 +45,7 @@ export type FindCommand = {
   collection: string;
   filter: Record<string, any>;
   projection?: Record<string, any>;
-  sort?: Record<string, any>;
+  sort?: Record<string, 1 | -1>;
   limit?: number;
   skip?: number;
 };
@@ -279,6 +279,11 @@ export const UPDATE_OPERATORS_FIELD = [
   '$unset',
 ] as const;
 
+export type SortNodeIR = {
+  operator: '$sort';
+  operands: [FieldReference, 1 | -1][];
+};
+
 export type UpdateNodeIR = 
   | UpdateNodeIR_$set
   | UpdateNodeIR_$unset;
@@ -312,6 +317,7 @@ export type FindCommandIR = {
   database: string;
   collection: string;
   filter: FilterNodeIR;
+  sort?: SortNodeIR | undefined;
   // projection: ProjectionNodeIR;
 };
 

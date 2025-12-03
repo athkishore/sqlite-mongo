@@ -403,6 +403,7 @@ function getCommandFromOpMsgBody(
         database: document.$db,
         collection: document.find,
         filter: document.filter,
+        sort: document.sort,
       };
     }
 

@@ -1,7 +1,8 @@
 import config from "../config.js";
 import { 
   type FilterNodeIR, 
-  type FindCommandIR
+  type FindCommandIR,
+  type SortNodeIR
 } from "../types.js";
 import type { Database } from "better-sqlite3";
 import { validateIdentifier } from "./utils.js";
@@ -12,6 +13,7 @@ import {
 } from "./common/filter.js";
 import { parseFromCustomJSON } from "#src/interfaces/lib/json.js";
 import { logSql, logSqlResult } from "./lib/utils.js";
+import { getSortFragment } from "./common/sort.js";
 
 
 
@@ -23,13 +25,17 @@ import { logSql, logSqlResult } from "./lib/utils.js";
 export function translateQueryToSQL({
   collection,
   canonicalFilter,
+  sort,
 }: {
   collection: string;
   canonicalFilter: FilterNodeIR;
+  sort: SortNodeIR | undefined;
   // TODO: canonicalProjection, canonicalSort, etc.
 }) {
+  const sortFragment = sort ? getSortFragment(sort) : '';
+
   if (canonicalFilter.operator === '$and' && canonicalFilter.operands.length === 0) {
-    return `SELECT c.doc FROM ${collection} c`;
+    return `SELECT c.doc FROM ${collection} c ${sortFragment}`;
   }
 
   const context: TranslationContext = {
@@ -58,6 +64,7 @@ WHERE EXISTS (
   WHERE
     ${whereFragment}
 )
+${sortFragment}
   `;
 
   return sql;
@@ -68,7 +75,7 @@ WHERE EXISTS (
 
 
 export function generateAndExecuteSQL_Find(command: FindCommandIR, db: Database) {
-  const { collection, database } = command;
+  const { collection, database, sort } = command;
   const isCollectionNameValid = validateIdentifier(collection);
 
   if (!isCollectionNameValid) throw new Error('Invalid Collection Name');
@@ -76,7 +83,7 @@ export function generateAndExecuteSQL_Find(command: FindCommandIR, db: Database)
   // const stmt = db.prepare(`SELECT doc FROM ${collection}`);
   // const result = stmt.all();
 
-  const sql = translateQueryToSQL({ collection, canonicalFilter: command.filter });
+  const sql = translateQueryToSQL({ collection, canonicalFilter: command.filter, sort });
 
   logSql(sql);
 

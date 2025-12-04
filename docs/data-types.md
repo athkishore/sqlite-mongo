@@ -1,6 +1,6 @@
 ## General Approach
 
-ChikkaDB stores documents as either plain text JSON or the very closely related [SQLite JSONB]()https://sqlite.org/jsonb.html in a single column. Even though SQLite can understand [JSON5](https://spec.json5.org/) extenstions, its json functions always return canonical JSON as defined in RFC8259(https://datatracker.ietf.org/doc/html/rfc8259). 
+ChikkaDB stores documents as either plain text JSON or the very closely related [SQLite JSONB](https://sqlite.org/jsonb.html) in a single column. Even though SQLite can understand [JSON5](https://spec.json5.org/) extenstions, its json functions always return canonical JSON as defined in [RFC8259](https://datatracker.ietf.org/doc/html/rfc8259). 
 
 In the interest of consistency, ChikkaDB stores only canonical JSON. This means that the data types that can be stored in the database are: string, number, boolean, null, array, and object. 
 

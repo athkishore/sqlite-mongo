@@ -73,7 +73,10 @@ export async function getResponse(message: WireMessage): Promise<WireMessage> {
 
 export async function handleOpMsg(payload: OpMsgPayload): Promise<OpMsgPayload | undefined> {
   const { sections } = payload;
-  const command = getCommandFromOpMsgBody(sections[0] as Extract<OpMsgPayload, { sectionKind: 0 }>)
+  const command = getCommandFromOpMsgBody(
+    sections[0] as Extract<OpMsgPayloadSection, { sectionKind: 0 }>,
+    sections.slice(0) as Extract<OpMsgPayloadSection, { sectionKind: 1 }>[]
+  );
   
   if (!command) {
     return {
@@ -350,13 +353,18 @@ export async function handleOpMsg(payload: OpMsgPayload): Promise<OpMsgPayload |
 }
 
 function getCommandFromOpMsgBody(
-  body: Extract<OpMsgPayloadSection, { sectionKind: 0 }>
+  body: Extract<OpMsgPayloadSection, { sectionKind: 0 }>,
+  additionalSections: Extract<OpMsgPayloadSection, { sectionKind: 1 }>[]
 ): MQLCommand | undefined {
   const commandType = MONGODB_COMMANDS.find(cmd => cmd === Object.keys(body.document)[0]);
   
   if (!commandType) return undefined;
 
   const { document } = body;
+
+  for (const s of additionalSections) {
+    document[s.documentSequenceIdentifier] = (document[s.documentSequenceIdentifier] ?? []).concat(s.documents);
+  }
   switch (commandType) {
     case 'buildInfo': {
       return {

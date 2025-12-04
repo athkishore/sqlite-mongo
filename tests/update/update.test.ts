@@ -211,6 +211,38 @@ const suite: Suite = {
               && result[0]!.obj.x === 1;
           },
         },
+        {
+          type: 'test',
+          name: 'sets boolean value',
+          input: {
+            filter: { username: 'user1' },
+            update: {
+              $set: {
+                bool: true,
+              },
+            },
+          },
+          expect: (result) => {
+            return result.length === 1
+              && result[0]!.bool === true;
+          },
+        },
+        {
+          type: 'test',
+          name: 'sets null value',
+          input: {
+            filter: { username: 'user1' },
+            update: {
+              $set: {
+                nil: null,
+              },
+            },
+          },
+          expect: (result) => {
+            return result.length === 1
+              && result[0]!.nil === null;
+          }
+        }
       ],
     },
     {

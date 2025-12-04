@@ -1,6 +1,6 @@
 import config from "#src/config.js";
-import type { UpdateNodeIR } from "../../types.js";
-import { getValueSqlFragment } from "./filter.js";
+import { stringifyToCustomJSON } from "#src/interfaces/lib/json.js";
+import type { UpdateNodeIR, Value } from "../../types.js";
 
 const JSON_TYPE = config.enableJSONB ? 'jsonb' : 'json';
 
@@ -69,4 +69,22 @@ export function getUpdateFragment(update: UpdateNodeIR[]) {
       }
     }
   }
+}
+
+export function getValueSqlFragment(value: Value) {
+  if (typeof value === 'string') {
+    return `'${value}'`;
+  } else if (typeof value === 'number') {
+    return `${value}`;
+  } else if (typeof value === 'boolean') {
+    return value ? `json('true')` : `json('false')`;
+  } else if (value === null) {
+    return 'NULL';
+  } else if (Array.isArray(value)) {
+    return `${JSON_TYPE}('${stringifyToCustomJSON(value)}')`;
+  } else if (typeof value === 'object') {
+    return `${JSON_TYPE}('${stringifyToCustomJSON(value)}')`;
+  }
+
+  throw new Error('Unknown type for value: ' + value);
 }

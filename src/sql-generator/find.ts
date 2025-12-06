@@ -15,10 +15,6 @@ import { parseFromCustomJSON } from "#src/interfaces/lib/json.js";
 import { logSql, logSqlResult } from "./lib/utils.js";
 import { getSortFragment } from "./common/sort.js";
 
-
-
-
-
 // This is a fickle implementation that can change drastically
 // as and when new optimizations are discovered. But the
 // interface is unlikely to change.
@@ -39,7 +35,16 @@ export function translateQueryToSQL({
   const sortFragment = sort ? getSortFragment(sort) : '';
 
   if (canonicalFilter.operator === '$and' && canonicalFilter.operands.length === 0) {
-    return `SELECT c.doc FROM ${collection} c ${sortFragment}${limit !== undefined ? ` LIMIT ${limit}` : ''}${skip !== undefined ? ` OFFSET ${skip}` : ''}`;
+    let sql = '';
+    sql += `SELECT c.doc\n`;
+    sql += `FROM ${collection} c\n`;
+    if (limit !== undefined) {
+      sql += `LIMIT ${limit}\n`;
+    }
+    if (skip !== undefined) {
+      sql += `OFFSET ${skip}`;
+    }
+    return sql;
   }
 
   const context: TranslationContext = {
@@ -54,24 +59,23 @@ export function translateQueryToSQL({
     conditionCTEs
   } = context;
 
-  let sql = `\
-SELECT c.doc
-FROM ${collection} c
-WHERE EXISTS (
-  WITH
-  ${conditionCTEs.join(',')}
-  SELECT 1
-  FROM (SELECT 1)
-  ${conditionCTEs.map((_, index) => {
-    return `FULL OUTER JOIN condition_${index} c${index} ON 1=1`;
-  }).join('\n')}
-  WHERE
-    ${whereFragment}
-)
-${sortFragment}
-${limit !== undefined ? `LIMIT ${limit}` : ''}
-${skip !== undefined ? `SKIP ${skip}` : ''}
-  `;
+  let sql = '';
+  sql += `SELECT c.doc\n`;
+  sql += `FROM ${collection} c\n`;
+  sql += `WHERE EXISTS (\n`;
+  sql += `  WITH ${conditionCTEs.join(',')}\n`;
+  sql += `  SELECT 1\n`;
+  sql += `  FROM (SELECT 1)\n`;
+  sql += `  ${conditionCTEs.map((_, index) => `FULL OUTER JOIN condition_${index} c${index} ON 1=1`).join('\n')}\n`;
+  sql += `  WHERE ${whereFragment}\n`;
+  sql += `)\n`;
+  sql += `${sortFragment}\n`;
+  if (limit !== undefined) {
+    sql += `LIMIT ${limit}\n`;
+  }
+  if (skip !== undefined) {
+    sql += `OFFSET ${skip}\n`;
+  }
 
   return sql;
   

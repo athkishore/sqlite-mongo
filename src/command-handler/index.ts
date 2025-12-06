@@ -478,6 +478,8 @@ function getCommandFromOpMsgBody(
         collection: document.find,
         filter: document.filter,
         sort: document.sort,
+        limit: document.limit,
+        skip: document.skip,
       };
     }
 

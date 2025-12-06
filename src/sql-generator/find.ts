@@ -26,16 +26,20 @@ export function translateQueryToSQL({
   collection,
   canonicalFilter,
   sort,
+  limit,
+  skip,
 }: {
   collection: string;
   canonicalFilter: FilterNodeIR;
   sort: SortNodeIR | undefined;
-  // TODO: canonicalProjection, canonicalSort, etc.
+  limit: number | undefined;
+  skip: number | undefined;
+  // TODO: canonicalProjection
 }) {
   const sortFragment = sort ? getSortFragment(sort) : '';
 
   if (canonicalFilter.operator === '$and' && canonicalFilter.operands.length === 0) {
-    return `SELECT c.doc FROM ${collection} c ${sortFragment}`;
+    return `SELECT c.doc FROM ${collection} c ${sortFragment}${limit !== undefined ? ` LIMIT ${limit}` : ''}${skip !== undefined ? ` OFFSET ${skip}` : ''}`;
   }
 
   const context: TranslationContext = {
@@ -65,6 +69,8 @@ WHERE EXISTS (
     ${whereFragment}
 )
 ${sortFragment}
+${limit !== undefined ? `LIMIT ${limit}` : ''}
+${skip !== undefined ? `SKIP ${skip}` : ''}
   `;
 
   return sql;
@@ -97,7 +103,7 @@ export function generateAndExecuteSQL_Find(command: FindCommandIR, db: Database)
   // const stmt = db.prepare(`SELECT doc FROM ${collection}`);
   // const result = stmt.all();
 
-  const sql = translateQueryToSQL({ collection, canonicalFilter: command.filter, sort });
+  const sql = translateQueryToSQL({ collection, canonicalFilter: command.filter, sort, limit: command.limit, skip: command.skip });
 
   logSql(sql);
 

@@ -332,6 +332,8 @@ export type FindCommandIR = {
   filter: FilterNodeIR;
   sort?: SortNodeIR | undefined;
   // projection: ProjectionNodeIR;
+  limit?: number;
+  skip?: number;
 };
 
 export type CountCommandIR = {

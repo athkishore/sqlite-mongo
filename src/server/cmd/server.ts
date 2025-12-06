@@ -3,6 +3,7 @@ import { encodeMessage, processBuffer, type WireMessage } from "../lib/wire.js";
 import { getResponse } from "#command-handler/index.js";
 import { logWireConn, logWireMsg } from "../lib/utils.js";
 import { startupOptions } from "../config.js";
+import fs from 'fs';
 
 const HOST = startupOptions.bind_ip_all 
   ? '0.0.0.0' 
@@ -45,6 +46,11 @@ if (isHostFilePath) {
     console.log(`Custom Mongo Server listening on`, `${HOST}:${PORT}`);
   });    
 }
+
+process.on('exit', () => {
+  if (isHostFilePath && fs.existsSync(HOST)) fs.unlinkSync(HOST);
+});
+process.on('SIGINT', () => process.exit());
 
 async function getEncodedResponse(message: WireMessage): Promise<Buffer> {
   const response = await getResponse(message);

@@ -6,7 +6,7 @@ export function parsePipeline(pipeline: AggregationStage[]): AggregationStageIR[
   const pipelineIR: AggregationStageIR[] = [];
 
   for (const stage of pipeline) {
-    switch(stage.stage) {
+    switch(stage?.stage) {
       case '$match': {
         pipelineIR.push(parseMatchStage(stage));
         break;
@@ -16,7 +16,8 @@ export function parsePipeline(pipeline: AggregationStage[]): AggregationStageIR[
         break;
       }
       default: {
-        throw new Error('Unknown stage: ', (stage as any).stage);
+        pipelineIR.push(null as any);
+        // throw new Error('Unknown stage: ' + (stage as any).stage);
       }
     }
     

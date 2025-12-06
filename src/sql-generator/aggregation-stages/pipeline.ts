@@ -1,0 +1,25 @@
+import type { AggregationStageIR } from "#src/types.js";
+import { translateCountToSQL } from "./count.js";
+import { translateMatchToSQL } from "./match.js";
+
+export function translatePipelineToSQL(pipeline: AggregationStageIR[], collection: string): string[] {
+  const pipelineCTEs: string[] = [];
+
+  for (const [index, stage] of pipeline.entries()) {
+    switch(stage.stage) {
+      case '$match': {
+        pipelineCTEs.push(translateMatchToSQL(stage, index, collection));
+        break;
+      }
+      case '$count': {
+        pipelineCTEs.push(translateCountToSQL(stage, index, collection));
+        break;
+      }
+      default: {
+        throw new Error(`Unknown stage: ${(stage as any).stage}`);
+      }
+    }
+  }
+
+  return pipelineCTEs;
+}

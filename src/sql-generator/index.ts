@@ -10,6 +10,7 @@ import { generateAndExecuteSQL_Delete } from "./delete.js";
 import { generateAndExecuteSQL_Update } from "./update.js";
 import { generateAndExecuteSQL_FindAndModify } from "./find-and-modify.js";
 import { logSqlExecTime } from "./lib/utils.js";
+import { generateAndExecuteSQL_Aggregate } from "./aggregate.js";
 
 export function generateAndExecuteSQLFromQueryIR(commandIR: CommandIR, db: Database.Database): any /* Add strong typing */ {
   switch (commandIR.command) {
@@ -41,9 +42,9 @@ export function generateAndExecuteSQLFromQueryIR(commandIR: CommandIR, db: Datab
       return generateAndExecuteSQL_FindAndModify(commandIR, db);
     }
 
-    // case 'aggregate': {
-    //   return generateAndExecuteSQL_aggregate(commandIR, db);
-    // }
+    case 'aggregate': {
+      return generateAndExecuteSQL_Aggregate(commandIR, db);
+    }
 
     case 'listDatabases': {
       return {

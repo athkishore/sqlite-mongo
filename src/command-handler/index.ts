@@ -402,11 +402,32 @@ function getCommandFromOpMsgBody(
     }
 
     case 'aggregate': {
+      // TODO: parsing of raw aggregate command needs to be streamlined
       return {
         command: 'aggregate',
         database: document.$db,
         collection: document.aggregate,
-        pipeline: document.pipeline,
+        pipeline: document.pipeline.map((s: Record<string, any>) => {
+          const stage = Object.keys(s)[0];
+          
+          switch(stage) {
+            case '$match': {
+              return {
+                stage,
+                filter: s[stage],
+              };
+            }
+            case '$count': {
+              return {
+                stage,
+                key: s[stage],
+              };
+            }
+            default: {
+              return null;
+            }
+          }
+        }),
         cursor: document.cursor,
       };
     }

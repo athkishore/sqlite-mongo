@@ -64,10 +64,6 @@ If this turns out to be successful, I have a more ambitious plan of reimplementi
 
 A more detailed roadmap will be made available as the project evolves.
 
-# License
-
-In the spirit of SQLite, the code for this project too will be in the public domain.
-
 # Fun Project, Serious Project
 
 This is first and foremost a project for me to have fun learning new things I would otherwise not have explored. At the same time, I see that it can fill a gap that is currently not served by any existing solution out there, if it turns out half as well as I hope it will.

@@ -1,7 +1,8 @@
 import Database from 'better-sqlite3';
 import fs from 'fs';
+import { startupOptions } from '#src/server/config.js';
 
-const DB_PATH = 'data/db';
+const DB_PATH = startupOptions.dbpath;
 
 if (!fs.existsSync(DB_PATH)) fs.mkdirSync(DB_PATH, { recursive: true });
 

@@ -1,13 +1,16 @@
 import { Socket, createServer } from "net";
 import { encodeMessage, processBuffer, type WireMessage } from "../lib/wire.js";
 import { getResponse } from "#command-handler/index.js";
-import minimist from 'minimist';
 import { logWireConn, logWireMsg } from "../lib/utils.js";
+import { startupOptions } from "../config.js";
 
-const argv = minimist(process.argv.slice(2));
+const HOST = startupOptions.bind_ip_all 
+  ? '0.0.0.0' 
+  : startupOptions.bind_ip ?? '127.0.0.1';
 
-const HOST = '127.0.0.1';
-const PORT = argv['port'] ?? 9000;
+const isHostFilePath = (HOST as string).startsWith('/');
+
+const PORT = startupOptions.port;
 
 const server = createServer(handleNewConnection);
 
@@ -33,9 +36,15 @@ async function handleNewConnection(sock: Socket) {
   });
 }
 
-server.listen(PORT, () => {
-  console.log(`Custom Mongo Server listening on`, `${HOST}:${PORT}`);
-});
+if (isHostFilePath) {
+  server.listen(HOST, () => {
+    console.log(`Custom Mongo Server listening on`, HOST);
+  })
+} else {
+  server.listen(isHostFilePath ? HOST : PORT, () => {
+    console.log(`Custom Mongo Server listening on`, `${HOST}:${PORT}`);
+  });    
+}
 
 async function getEncodedResponse(message: WireMessage): Promise<Buffer> {
   const response = await getResponse(message);

@@ -13,13 +13,11 @@ export function generateAndExecuteSQL_Insert(command: InsertCommandIR, db: Datab
   const isDocumentsValid = Array.isArray(documents) && documents.every(d => d !== null && typeof d === 'object');
   if (!isDocumentsValid) throw new Error('Invalid Documents');
 
-  const insert = db.prepare(`INSERT INTO ${collection} VALUES (?, ?)`);
+  const insert = db.prepare(`INSERT INTO ${collection} VALUES (?)`);
   const transaction = db.transaction(documents => {
     for (const document of documents) {
-      const { _id } = document;
       insert.run(
-        _id instanceof ObjectId ? _id.toHexString() : _id,
-        stringifyToCustomJSON(document),
+        stringifyToCustomJSON(document._id === undefined ? { _id: new ObjectId(), ...document } : document),
       );
     }
   });

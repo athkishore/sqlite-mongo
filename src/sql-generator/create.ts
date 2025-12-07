@@ -10,7 +10,7 @@ export function generateAndExecuteSQL_Create(command: CreateCommandIR, db: Datab
   const collection = command.collection.replaceAll('.', '_').replaceAll('-', '_');
   const isCollectionNameValid = validateIdentifier(collection);
   if (!isCollectionNameValid) throw new Error('Invalid Collection Name');
-  const statement = db.prepare(`CREATE TABLE IF NOT EXISTS ${collection} (id TEXT, doc TEXT)`);
+  const statement = db.prepare(`CREATE TABLE IF NOT EXISTS ${collection} (doc TEXT, id TEXT UNIQUE AS (json_extract(doc, '$._id')))`);
   statement.run()
   
   return { ok: 1 };

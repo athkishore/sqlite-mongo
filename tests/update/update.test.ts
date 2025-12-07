@@ -20,14 +20,13 @@ before(() => {
   db = new Database();
   for (const coln of seedCollections) {
     const { collection, documents } = coln;
-    db.exec(`CREATE TABLE ${collection} (id TEXT, doc TEXT)`);
+    db.exec(`CREATE TABLE ${collection} (doc TEXT, id TEXT UNIQUE AS (json_extract(doc, '$._id')))`);
 
-    const insert = db.prepare(`INSERT INTO ${collection} VALUES (?, ?)`);
+    const insert = db.prepare(`INSERT INTO ${collection} VALUES (?)`);
     const transaction = db.transaction(documents => {
       for (const document of documents) {
         const _id = new ObjectId();
         insert.run(
-          _id.toHexString(),
           stringifyToCustomJSON({ _id, ...document })
         );
       }

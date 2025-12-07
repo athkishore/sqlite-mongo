@@ -25,7 +25,7 @@ before(() => {
 
 describe('insert command', () => {
   it('inserts new documents in the specified collection', () => {
-    db.exec(`CREATE TABLE ${collection} (id TEXT, doc TEXT)`);      
+    db.exec(`CREATE TABLE ${collection} (doc TEXT, id TEXT UNIQUE AS (json_extract(doc, '$._id')))`);      
     
     const command: InsertCommandIR = {
       command: 'insert',

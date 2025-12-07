@@ -38,6 +38,7 @@ export function translateQueryToSQL({
     let sql = '';
     sql += `SELECT c.doc\n`;
     sql += `FROM ${collection} c\n`;
+    sql += sortFragment + '\n';
     if (limit !== undefined) {
       sql += `LIMIT ${limit}\n`;
     }

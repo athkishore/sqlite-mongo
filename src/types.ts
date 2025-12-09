@@ -335,7 +335,7 @@ export type ProjectionDocIR = {
 
 export type ProjectionNodeIR = {
   path: string;
-  children?: ProjectionNodeIR[];
+  children: ProjectionNodeIR[];
 };
 
 export type UpdateNodeIR = 

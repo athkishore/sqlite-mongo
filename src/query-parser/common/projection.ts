@@ -12,14 +12,11 @@ export function parseProjectionDoc(
     const elements = Object.entries(projectionDoc);
 
     for (const [key, value] of elements) {
-      const [error, node] = parseProjectionElement(key, value, {
+      const error = parseProjectionElement(key, value, {
         parentPath: [],
         parseResult,
       });
       if (error) throw error;
-
-      // TODO: Unhardcode include/exclude
-      parseResult.include.push(node);
     }
 
     return [null, parseResult];
@@ -35,13 +32,42 @@ function parseProjectionElement(
     parentPath: string[];
     parseResult: ProjectionDocIR;
   }
-): [Error, null] | [null, ProjectionNodeIR] {
+): Error | null {
   try {
     const { parentPath, parseResult } = context;
     const pathSegments = key.split('.');
 
-    return [null, { path: 'a' }];
+    if (value === 1 || value === 0) {
+      let parentNodeArr = value === 1 ? parseResult.include : parseResult.exclude;
+
+      const segments = parentPath.concat(pathSegments);
+      for (const [index, segment] of segments.entries()) {
+        let child = parentNodeArr.find(el => el.path === segment);
+        if (!child) {
+          child = {
+            path: segment,
+            children: [],
+          };
+          parentNodeArr.push(child);
+        }
+
+        if (index < segments.length - 1) {
+          parentNodeArr = child.children;
+        }
+      }
+    } else {
+      for (const [k, v] of Object.entries(value)) {
+        const error = parseProjectionElement(k, v, {
+          parentPath: parentPath.concat(pathSegments),
+          parseResult,
+        });
+
+        if (error) throw error;
+      }
+    }
+
+    return null;
   } catch (error) {
-    return [error as Error, null];
+    return error as Error;
   }
 }

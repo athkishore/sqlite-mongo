@@ -2,6 +2,7 @@ import config from "../config.js";
 import { 
   type FilterNodeIR, 
   type FindCommandIR,
+  type ProjectionDocIR,
   type SortNodeIR
 } from "../types.js";
 import type { Database } from "better-sqlite3";
@@ -14,6 +15,7 @@ import {
 import { parseFromCustomJSON } from "#src/interfaces/lib/json.js";
 import { logSql, logSqlResult } from "./lib/utils.js";
 import { getSortFragment } from "./common/sort.js";
+import { getProjectionFragment } from "./common/projection.js";
 
 // This is a fickle implementation that can change drastically
 // as and when new optimizations are discovered. But the
@@ -24,19 +26,22 @@ export function translateQueryToSQL({
   sort,
   limit,
   skip,
+  projection,
 }: {
   collection: string;
   canonicalFilter: FilterNodeIR;
   sort: SortNodeIR | undefined;
   limit: number | undefined;
   skip: number | undefined;
-  // TODO: canonicalProjection
+  projection: ProjectionDocIR | undefined;
 }) {
   const sortFragment = sort ? getSortFragment(sort) : '';
 
+  const projectionFragment = projection ? getProjectionFragment(projection) : 'c.doc';
+
   if (canonicalFilter.operator === '$and' && canonicalFilter.operands.length === 0) {
     let sql = '';
-    sql += `SELECT c.doc\n`;
+    sql += `SELECT ${projectionFragment}\n`;
     sql += `FROM ${collection} c\n`;
     sql += sortFragment + '\n';
     if (limit !== undefined) {
@@ -108,7 +113,7 @@ export function generateAndExecuteSQL_Find(command: FindCommandIR, db: Database)
   // const stmt = db.prepare(`SELECT doc FROM ${collection}`);
   // const result = stmt.all();
 
-  const sql = translateQueryToSQL({ collection, canonicalFilter: command.filter, sort, limit: command.limit, skip: command.skip });
+  const sql = translateQueryToSQL({ collection, canonicalFilter: command.filter, sort, limit: command.limit, skip: command.skip, projection: command.projection });
 
   logSql(sql);
 

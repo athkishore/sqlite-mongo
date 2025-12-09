@@ -375,7 +375,7 @@ export type FindCommandIR = {
   collection: string;
   filter: FilterNodeIR;
   sort?: SortNodeIR | undefined;
-  // projection: ProjectionNodeIR;
+  projection?: ProjectionDocIR | undefined;
   limit?: number;
   skip?: number;
 };

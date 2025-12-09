@@ -520,6 +520,7 @@ function getCommandFromOpMsgBody(
         database: document.$db,
         collection: document.find,
         filter: document.filter,
+        projection: document.projection,
         sort: document.sort,
         limit: document.limit,
         skip: document.skip,

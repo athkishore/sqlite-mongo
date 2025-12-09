@@ -196,6 +196,10 @@ export type CommandResponse = {};
 
 export type FilterDoc = Record<string, any>;
 
+export type ProjectionDoc = {
+  [x: string]: 1 | 0 | ProjectionDoc;
+};
+
 export type FilterNodeIR = 
   | FilterNodeIR_DocLevel
   | FilterNodeIR_FieldLevel;
@@ -322,6 +326,16 @@ export const UPDATE_OPERATORS_FIELD = [
 export type SortNodeIR = {
   operator: '$sort';
   operands: [FieldReference, 1 | -1][];
+};
+
+export type ProjectionDocIR = {
+  include: ProjectionNodeIR[];
+  exclude: ProjectionNodeIR[];
+};
+
+export type ProjectionNodeIR = {
+  path: string;
+  children?: ProjectionNodeIR[];
 };
 
 export type UpdateNodeIR = 

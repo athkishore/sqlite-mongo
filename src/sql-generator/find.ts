@@ -37,7 +37,7 @@ export function translateQueryToSQL({
 }) {
   const sortFragment = sort ? getSortFragment(sort) : '';
 
-  const projectionFragment = projection ? getProjectionFragment(projection) : 'c.doc';
+  const projectionFragment = projection ? getProjectionFragment(projection) || 'c.doc' : 'c.doc';
 
   if (canonicalFilter.operator === '$and' && canonicalFilter.operands.length === 0) {
     let sql = '';

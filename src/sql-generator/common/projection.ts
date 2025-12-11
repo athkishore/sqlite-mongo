@@ -1,23 +1,32 @@
 import type { ProjectionDocIR, ProjectionNodeIR } from "#src/types.js";
 
 export function getProjectionFragment(projection: ProjectionDocIR) {
-  const includePaths: string[] = [];
+  const includePaths = getPathsFromIR(projection.include);
 
-  const { include } = projection;
+  console.log(includePaths);
 
 
   let s = '';
   s += `(\n`;
   s += `  WITH\n`;
   s += `  include_paths AS (\n`;
-
-  s += `),\n`;
+  
+  for (const [index, path] of includePaths.entries()) {
+    s += `    SELECT '${path}' AS _path, ${path.split('.').length} AS _length\n`
+    if (index < includePaths.length - 1) {
+      s += `    UNION\n`;
+    }
+  }
+  
+    s += `),\n`;
 
 
   s += `)`;
 
+  console.log(s);
 
-  return s;
+
+  return '';
 }
 
 

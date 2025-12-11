@@ -32,7 +32,7 @@ export function getProjectionFragment(projection: ProjectionDocIR) {
 
   while (pathIndex < maxPathLength) {
     /** p{i} CTE */
-    s += `  p${pathIndex} AS (\n`;
+    s += `  p${pathIndex}${pathIndex === maxPathLength - 1 ? '_mod' : ''} AS (\n`;
     s += `    SELECT\n`;
     for (let idx = 0; idx < pathIndex; idx++) {
       s += `      p${pathIndex - 1}_each.p${idx}_k AS p${idx}_k,\n`;
@@ -46,7 +46,7 @@ export function getProjectionFragment(projection: ProjectionDocIR) {
     if (pathIndex === 0) {
       s += `      je.value AS p${pathIndex}_v\n`;
     } else {
-      const pathMatchExp = getPathMatchExp(pathIndex);
+      const pathMatchExp = getPathMatchExp(pathIndex, `p${pathIndex - 1}_each`);
       s += `      CASE (SELECT 1 FROM include_paths WHERE include_paths._path LIKE ${pathMatchExp})\n`;
       s += `        WHEN TRUE THEN je.value\n`;
       s += `        ELSE p${pathIndex - 1}_each.p${pathIndex - 1}_each_v\n`;
@@ -60,7 +60,7 @@ export function getProjectionFragment(projection: ProjectionDocIR) {
       s += `      p${pathIndex - 1}_each\n`;
       s += `      CROSS JOIN (SELECT 1)\n`;
       s += `      LEFT JOIN json_each(\n`;
-      s += `        CASE p${pathIndex - 1}_each.p${pathIndex - 1}_t = 'object' AND (SELECT 1 FROM include_paths WHERE include_paths._path LIKE ${getPathMatchExp(pathIndex)})\n`;
+      s += `        CASE p${pathIndex - 1}_each.p${pathIndex - 1}_t = 'object' AND (SELECT 1 FROM include_paths WHERE include_paths._path LIKE ${getPathMatchExp(pathIndex, `p${pathIndex - 1}_each`)})\n`;
       s += `          WHEN TRUE THEN p${pathIndex - 1}_each.p${pathIndex - 1}_each_v\n`;
       s += `          ELSE '{}'\n`
       s += `      ) AS je\n`;
@@ -77,9 +77,9 @@ export function getProjectionFragment(projection: ProjectionDocIR) {
       s += `        CASE include_paths._length\n`;
       
       for (let l = 1; l <= pathIndex; l++) {
-        s += `          WHEN ${l} THEN include_paths._path LIKE ${getPathMatchExp(l, { suffix: true, suffixDot: false })}\n`;
+        s += `          WHEN ${l} THEN include_paths._path LIKE ${getPathMatchExp(l, `p${pathIndex - 1}_each`, { suffix: true, suffixDot: false })}\n`;
       }
-      s += `          ELSE include_paths._path LIKE ${getPathMatchExp(pathIndex, { suffix: false, suffixDot: false })} je.key || '%'\n`;
+      s += `          ELSE include_paths._path LIKE ${getPathMatchExp(pathIndex, `p${pathIndex - 1}_each`, { suffix: false, suffixDot: false })} je.key || '%'\n`;
       s += `        END\n`;
     }
 
@@ -105,15 +105,15 @@ export function getProjectionFragment(projection: ProjectionDocIR) {
     }
     s += `      p${pathIndex}.p${pathIndex}_k AS p${pathIndex}_k,\n`;
     s += `      p${pathIndex}.p${pathIndex}_t AS p${pathIndex}_t,\n`;
-    s += `      CASE p${pathIndex}.p${pathIndex}_t = 'array' AND (SELECT 1 FROM include_paths WHERE include_paths._path LIKE ${getPathMatchExp(pathIndex + 1)})\n`;
+    s += `      CASE p${pathIndex}.p${pathIndex}_t = 'array' AND (SELECT 1 FROM include_paths WHERE include_paths._path LIKE ${getPathMatchExp(pathIndex + 1, `p${pathIndex}`)})\n`;
     s += `        WHEN TRUE THEN je.key\n`;
     s += `        ELSE null\n`;
     s += `      END AS p${pathIndex}_each_i,\n`;
-    s += `      CASE p${pathIndex}.p${pathIndex}_t = 'array' AND (SELECT 1 FROM include_paths WHERE include_paths._path LIKE ${getPathMatchExp(pathIndex + 1)})\n`;
+    s += `      CASE p${pathIndex}.p${pathIndex}_t = 'array' AND (SELECT 1 FROM include_paths WHERE include_paths._path LIKE ${getPathMatchExp(pathIndex + 1, `p${pathIndex}`)})\n`;
     s += `        WHEN TRUE THEN je.type\n`;
     s += `        ELSE p${pathIndex}.p${pathIndex}_t\n`
     s += `      END AS p${pathIndex}_each_t,\n`;
-    s += `      CASE p${pathIndex}.p${pathIndex}_t = 'array' AND (SELECT 1 FROM include_paths WHERE include_paths._path LIKE ${getPathMatchExp(pathIndex + 1)})\n`;
+    s += `      CASE p${pathIndex}.p${pathIndex}_t = 'array' AND (SELECT 1 FROM include_paths WHERE include_paths._path LIKE ${getPathMatchExp(pathIndex + 1, `p${pathIndex}`)})\n`;
     s += `        WHEN TRUE THEN je.value\n`;
     s += `        ELSE p${pathIndex}.p${pathIndex}_v\n`;
     s += `      END AS p${pathIndex}_each_v\n`;
@@ -121,7 +121,7 @@ export function getProjectionFragment(projection: ProjectionDocIR) {
     s += `      p${pathIndex}\n`;
     s += `      CROSS JOIN (SELECT 1)\n`;
     s += `      LEFT JOIN json_each(\n`;
-    s += `        CASE p${pathIndex}.p${pathIndex}_t = 'array' AND (SELECT 1 FROM include_paths WHERE include_paths._path LIKE ${getPathMatchExp(pathIndex + 1)})\n`;
+    s += `        CASE p${pathIndex}.p${pathIndex}_t = 'array' AND (SELECT 1 FROM include_paths WHERE include_paths._path LIKE ${getPathMatchExp(pathIndex + 1, `p${pathIndex}`)})\n`;
     s += `          WHEN TRUE THEN p${pathIndex}.p${pathIndex}_v\n`;
     s += `          ELSE '[]'\n`;
     s += `        END\n`;
@@ -135,6 +135,26 @@ export function getProjectionFragment(projection: ProjectionDocIR) {
   while (pathIndex >= 0) {
     /** p{i}_each_mod CTE */
     s += `  p${pathIndex}_each_mod AS (\n`;
+    s += `    SELECT\n`;
+    for (let idx = 0; idx <= pathIndex; idx++) {
+      s += `      p${pathIndex + 1}_mod.p${idx}_k AS p${idx}_k,\n`;
+      s += `      p${pathIndex + 1}_mod.p${idx}_t AS p${idx}_t,\n`;
+      s += `      p${pathIndex + 1}_mod.p${idx}_each_i AS p${idx}_each_i,\n`;
+      s += `      p${pathIndex + 1}_mod.p${idx}_each_t AS p${idx}_each_t,\n`;
+    }
+    s += `      CASE p${pathIndex + 1}_mod.p${pathIndex}_each_t = 'object' AND (SELECT 1 FROM include_paths WHERE include_paths._path LIKE ${getPathMatchExp(pathIndex + 1, `p${pathIndex + 1}_mod`)}) \n`;
+    s += `        WHEN TRUE THEN json_group_object(\n`;
+    s += `          p${pathIndex+1}_mod.p${pathIndex + 1}_k,\n`;
+    s += `          CASE p${pathIndex + 1}_mod.p${pathIndex + 1}_t = 'array' OR p${pathIndex + 1}_mod.p${pathIndex + 1}_t = 'object' WHEN TRUE THEN json(p${pathIndex + 1}_mod.p${pathIndex + 1}_v) ELSE p${pathIndex + 1}_mod.p${pathIndex + 1}_v END\n`;
+    s += `        )\n`;
+    s += `        ELSE p${pathIndex + 1}_mod.p${pathIndex + 1}_v\n`;
+    s += `      END AS p${pathIndex}_each_v\n`
+    s += `    FROM p${pathIndex + 1}_mod\n`;
+    s += `    GROUP BY `;
+    for (let idx = 0; idx <= pathIndex; idx++) {
+      s += `p${pathIndex + 1}_mod.p${idx}_k, p${pathIndex + 1}_mod.p${idx}_each_i`;
+      if (idx < pathIndex) { s += ', '; } else { s += '\n'; }
+    }
     s += `  ),\n`;
     /** End of p{i}_each_mod */
 
@@ -178,11 +198,11 @@ function getPathsFromIR(nodes: ProjectionNodeIR[]) {
 
 }
 
-function getPathMatchExp(pathIndex: number, options = { suffix: true, suffixDot: true }) {
+function getPathMatchExp(pathIndex: number, tablePrefix: string, options = { suffix: true, suffixDot: true }) {
   return Array.from({ length: pathIndex })
     .reduce((acc, _, index) => {
       let fragment = acc;
-      fragment += `p${pathIndex - 1}.p${index}_k`;
+      fragment += `${tablePrefix}.p${index}_k`;
       if (index === pathIndex - 1 && options.suffix) {
         fragment += ` || '${options.suffixDot ? '.' : ''}%'`;
       } else {

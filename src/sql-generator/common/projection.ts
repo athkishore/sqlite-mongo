@@ -3,6 +3,8 @@ import type { ProjectionDocIR, ProjectionNodeIR } from "#src/types.js";
 export function getProjectionFragment(projection: ProjectionDocIR) {
   const includePaths = getPathsFromIR(projection.include);
 
+  // TODO: Sanitize paths
+
   console.log(includePaths);
 
 
@@ -31,6 +33,39 @@ export function getProjectionFragment(projection: ProjectionDocIR) {
   while (pathIndex < maxPathLength) {
     /** p{i} CTE */
     s += `  p${pathIndex} AS (\n`;
+    s += `    SELECT\n`;
+    for (let idx = 0; idx < pathIndex; idx++) {
+      s += `      p${pathIndex - 1}_each.p${idx}_k AS p${idx}_k,\n`;
+      s += `      p${pathIndex - 1}_each.p${idx}_t AS p${idx}_t,\n`;
+      s += `      p${pathIndex - 1}_each.p${idx}_each_i AS p${idx}_each_i,\n`;
+      s += `      p${pathIndex - 1}_each.p${idx}_each_t AS p${idx}_each_t,\n`;
+    }
+    s += `      je.key AS p${pathIndex}_k,\n`;
+    s += `      je.type AS p${pathIndex}_t,\n`;
+    
+    if (pathIndex === 0) {
+      s += `      je.value AS p${pathIndex}_v\n`;
+    } else {
+      const pathMatchExp = getPathMatchExp(pathIndex);
+      s += `      CASE (SELECT 1 FROM include_paths WHERE include_paths._path LIKE ${pathMatchExp})\n`;
+      s += `        WHEN TRUE THEN je.value\n`;
+      s += `        ELSE p${pathIndex - 1}_each.p${pathIndex - 1}_each_v\n`;
+      s += `      END AS p${pathIndex}_v\n`;
+    }
+
+    if (pathIndex === 0) {
+      s += `    FROM json_each(c.doc) AS je\n`;
+    } else {
+      s += `    FROM\n`;
+      s += `      p${pathIndex - 1}_each\n`;
+      s += `      CROSS JOIN (SELECT 1)\n`;
+      s += `      LEFT JOIN json_each(\n`;
+      s += `        CASE p${pathIndex - 1}_each.p${pathIndex - 1}_t = 'object' AND (SELECT 1 FROM include_paths WHERE include_paths._path LIKE ${getPathMatchExp(pathIndex)})\n`;
+      s += `          WHEN TRUE THEN p${pathIndex - 1}_each.p${pathIndex - 1}_each_v\n`;
+      s += `          ELSE '{}'\n`
+      s += `      ) AS je\n`;
+    }
+
     s += `  ),\n`;
     /** End of p{i} CTE */
 
@@ -91,4 +126,18 @@ function getPathsFromIR(nodes: ProjectionNodeIR[]) {
 
   return paths;
 
+}
+
+function getPathMatchExp(pathIndex: number) {
+  return Array.from({ length: pathIndex })
+    .reduce((acc, _, index) => {
+      let fragment = acc;
+      fragment += `p${pathIndex - 1}.p${index}_k`;
+      if (index === pathIndex - 1) {
+        fragment += ` || '.%'`;
+      } else {
+        fragment += ` || '.'`;
+      }
+      return fragment;
+    }, '');
 }

@@ -66,7 +66,7 @@ export function translateQueryToSQL({
   } = context;
 
   let sql = '';
-  sql += `SELECT c.doc\n`;
+  sql += `SELECT ${projectionFragment}\n`;
   sql += `FROM ${collection} c\n`;
   sql += `WHERE EXISTS (\n`;
   sql += `  WITH ${conditionCTEs.join(',')}\n`;

@@ -5,9 +5,6 @@ export function getProjectionFragment(projection: ProjectionDocIR) {
 
   // TODO: Sanitize paths
 
-  console.log(includePaths);
-
-
   let s = '';
   s += `(\n`;
   s += `  WITH\n`;
@@ -87,7 +84,7 @@ export function getProjectionFragment(projection: ProjectionDocIR) {
     s += `      )\n`;
     s += `    )\n`;
 
-    s += `  ),\n`;
+    s += `  )${maxPathLength > 1 ? ',' : ''}\n`;
     /** End of p{i} CTE */
 
     if (pathIndex === maxPathLength - 1) {
@@ -196,13 +193,9 @@ export function getProjectionFragment(projection: ProjectionDocIR) {
 
   s += `  SELECT json_group_object(p0_mod.p0_k, json(p0_mod.p0_v)) FROM p0_mod\n`;
 
-  s += `)`;
+  s += `) AS doc`;
 
-  console.log(s);
-  console.log(maxPathLength);
-
-
-  return '';
+  return s;
 }
 
 

@@ -33,11 +33,11 @@ Connect to ChikkaDB using your favourite MongoDB client and happy databasing!
 
 # Compatibility with MongoDB
 
-ChikkaDB aims to implement a rich subset of the MongoDB commands that unlock the power of SQLite's JSON and JSONB functions. It doesn't aim for completeness in compatibility, since MongoDB has some obscure commands. The selection of commands and operators is based on the expressive value they add in interacting with JSON data stored in SQLite. See [Supported Commands](./docs/supported-commands.md) to find out which commands are available.
+ChikkaDB aims to implement a subset of the MongoDB commands that is sufficiently rich to unlock the power of SQLite's JSON and JSONB functions. It doesn't aim for completeness in compatibility, since MongoDB has some obscure commands. The selection of commands and operators is based on the expressive value they add in interacting with JSON data stored in SQLite. See [Supported Commands](https://chikkadb.org/reference/database-commands/) to find out which commands are available.
 
 The ChikkaDB server is wire-compatible with `mongod`, so you can connect to ChikkaDB using any of your favourite MongoDB clients or language drivers.
 
-ChikkaDB achieves a great degree of BSON-compatibility by storing and operating on the Extended JSON values wherever the value is not a part of the core JSON specification. See [Data Types](./docs/data-types.md) to find more details about the representation and handling of types.
+ChikkaDB achieves a great degree of BSON-compatibility by storing and operating on the Extended JSON values wherever the value is not a part of the core JSON specification. See [Data Types](https://chikkadb.org/reference/data-types/) to find more details about the representation and handling of types.
 
 # Architecture
 

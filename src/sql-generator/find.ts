@@ -12,10 +12,11 @@ import {
   traverseFilterAndTranslateCTE, 
   type TranslationContext 
 } from "./common/filter.js";
-import { parseFromCustomJSON } from "#src/interfaces/lib/json.js";
+import { parseFromCustomJSON, stringifyToCustomJSON } from "#src/interfaces/lib/json.js";
 import { logSql, logSqlResult } from "./lib/utils.js";
 import { getSortFragment } from "./common/sort.js";
 import { getProjectionFragment } from "./common/projection.js";
+import { project } from "./user-defined-functions/projection.js";
 
 // This is a fickle implementation that can change drastically
 // as and when new optimizations are discovered. But the
@@ -37,7 +38,8 @@ export function translateQueryToSQL({
 }) {
   const sortFragment = sort ? getSortFragment(sort) : '';
 
-  const projectionFragment = projection ? getProjectionFragment(projection) || 'c.doc' : 'c.doc';
+  // const projectionFragment = projection ? getProjectionFragment(projection) || 'c.doc' : 'c.doc';
+  const projectionFragment = projection ? `_project(c.doc) AS doc` : `c.doc`;
 
   if (canonicalFilter.operator === '$and' && canonicalFilter.operands.length === 0) {
     let sql = '';
@@ -91,13 +93,17 @@ export function translateQueryToSQL({
 
 
 export function generateAndExecuteSQL_Find(command: FindCommandIR, db: Database) {
-  const { collection, database, sort } = command;
+  const { collection, database, sort, projection } = command;
   const isCollectionNameValid = validateIdentifier(collection);
 
   if (!isCollectionNameValid) throw new Error('Invalid Collection Name');
 
   const getTablesStmt = db.prepare(`SELECT name FROM sqlite_master WHERE type = 'table'`)
   const tables = getTablesStmt.all();
+
+  if (projection) {
+    db.function('_project', (docJSON: string) => stringifyToCustomJSON(project(parseFromCustomJSON(docJSON), projection)));
+  }
 
   if (!tables.some((t: any) => t.name === collection)) {
     return {

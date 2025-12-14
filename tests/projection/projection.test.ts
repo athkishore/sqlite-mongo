@@ -7,7 +7,7 @@ import { after, before, describe, it } from "node:test";
 import { ObjectId } from "bson";
 import { parseFindCommand } from "#src/query-parser/find.js";
 import { generateAndExecuteSQLFromQueryIR } from "#src/sql-generator/index.js";
-import assert from "node:assert";
+import assert, { ok } from "node:assert";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -43,7 +43,7 @@ type Test = {
     filter: Record<string, any>;
     projection: Record<string, any>;
   };
-  expect: (resultDocs: Record<string, any>) => boolean;
+  expect: (resultDocs: Record<string, any>[], originalDocs: Record<string, any>[]) => boolean;
 };
 
 type Suite = {
@@ -54,25 +54,94 @@ type Suite = {
 
 const suite: Suite = {
   type: 'suite',
-  name: 'inclusion projection',
+  name: 'projection',
   children: [
     {
-      type: 'test',
-      name: 'includes top-level fields that exist',
-      input: {
-        filter: {},
-        projection: { _id: 1, username: 1 },
-      },
-      expect: (result) => {
-        return result.every((doc: any) => {
-          const keys = Object.keys(doc);
-          return keys.length === 2
-            && keys.includes('_id')
-            && keys.includes('username');
-        });
-      },
+      type: 'suite',
+      name: 'inclusion projection',
+      children: [
+        {
+          type: 'test',
+          name: 'includes top-level fields that exist',
+          input: {
+            filter: {},
+            projection: { _id: 1, username: 1 },
+          },
+          expect: (result) => {
+            return result.every((doc: any) => {
+              const keys = Object.keys(doc);
+              return keys.length === 2
+                && keys.includes('_id')
+                && keys.includes('username');
+            });
+          },
+        }
+      ],
+    },
+    {
+      type: 'suite',
+      name: 'exclusion projection',
+      children: [
+        {
+          type: 'test',
+          name: 'excludes top-level fields that exist',
+          input: {
+            filter: {},
+            projection: { email: 0, age: 0 },
+          },
+          expect: (resultDocs, originalDocs) => {
+            return resultDocs.every(resultDoc => {
+              const originalDoc = originalDocs.find(d => d.username === resultDoc.username);
+              if (!originalDoc) return false;
+
+              const originalDocKeys = Object.keys(originalDoc);
+              const resultDocKeys = Object.keys(resultDoc);
+
+              return originalDocKeys.every(originalDocKey => {
+                if (originalDocKey === 'email' || originalDocKey === 'age') {
+                  return !resultDocKeys.includes(originalDocKey);
+                } else {
+                  return resultDocKeys.includes(originalDocKey);
+                }
+              }); 
+            });
+          }
+        },
+        {
+          type: 'test',
+          name: 'excludes nested field in object',
+          input: {
+            filter: {},
+            projection: { 'address.street': 0 },
+          },
+          expect: (resultDocs, originalDocs) => {
+            return resultDocs.every(resultDoc => {
+              const originalDoc = originalDocs.find(d => d.username === resultDoc.username);
+              if (!originalDoc) return false;
+
+              const originalDocKeys = Object.keys(originalDoc);
+              const resultDocKeys = Object.keys(resultDoc).filter(k => k !== '_id');
+
+              if (originalDocKeys.length !== resultDocKeys.length) {
+                return false;
+              }
+
+              const originalDocAddressKeys = Object.keys(originalDoc.address);
+              const resultDocAddressKeys = Object.keys(resultDoc.address);
+
+              return originalDocAddressKeys.every(oKey => {
+                if (oKey === 'street') {
+                  return !resultDocAddressKeys.includes(oKey);
+                } else {
+                  return resultDocAddressKeys.includes(oKey);
+                }
+              });
+            });
+          },
+        }
+      ],
     }
-  ]
+  ],
 }
 
 function executeTest(test: Test) {
@@ -88,7 +157,7 @@ function executeTest(test: Test) {
     const sqlResult = generateAndExecuteSQLFromQueryIR(commandIR, db);
     const sqlResultDocuments = sqlResult.cursor.firstBatch;
 
-    assert(test.expect(sqlResultDocuments));
+    assert(test.expect(sqlResultDocuments, seedCollections[0].documents));
   });
 }
 

@@ -6,7 +6,11 @@ export function project(doc: Record<string, any>, projection: ProjectionDocIR) {
 
 
 
-  const projectedDoc = projectDocInclusion(doc, includePaths);
+  const projectedDoc = includePaths.length > 0
+    ? projectDocInclusion(doc, includePaths)
+    : excludePaths.length > 0
+    ? projectDocExclusion(doc, excludePaths)
+    : doc;
 
   return projectedDoc;
 }
@@ -59,6 +63,52 @@ function projectDocInclusion(doc: Record<string, any>, includePaths: string[], p
   }
 
   return copy_of_doc;
+}
+
+function projectDocExclusion(doc: Record<string, any>, excludePaths: string[], parentPath = '') {
+  for (const [key, value] of Object.entries(doc)) {
+    const matchingPaths = excludePaths.filter(p => p.match(parentPath ? `${parentPath}.${key}` : key));
+    const isExactMatch = matchingPaths.length === 1 && matchingPaths[0] === (parentPath ? `${parentPath}.${key}` : key);
+
+    if (Array.isArray(value)) {
+      if (matchingPaths.length === 0) {
+        continue;
+      }
+
+      if (isExactMatch) {
+        delete doc[key];
+        continue;
+      }
+
+      const updatedArr = value.map(el => {
+        if (!Array.isArray(el) && el !== null && typeof el === 'object') {
+          return projectDocExclusion(el, excludePaths, parentPath ? `${parentPath}.${key}` : key);
+        } else {
+          return undefined;
+        }
+      }).filter(el => el !== undefined);
+
+      doc[key] = updatedArr;
+    } else if (value !== null && typeof value === 'object') {
+      if (matchingPaths.length === 0) {
+        continue;
+      }
+
+      if (isExactMatch) {
+        delete doc[key];
+        continue;
+      }
+
+      const updatedObj = projectDocExclusion(value, excludePaths, parentPath ? `${parentPath}.${key}` : key);
+      doc[key] = updatedObj;
+    } else {
+      if (isExactMatch) {
+        delete doc[key];
+      }
+    }
+  }
+
+  return doc;
 }
 
 function getPathsFromIR(nodes: ProjectionNodeIR[]) {

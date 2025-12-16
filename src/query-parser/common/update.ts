@@ -34,7 +34,7 @@ function parseUpdateElement(key: string, value: any): [Error, null] | [null, Upd
       throw new Error(`Update operator ${key} needs an object value`);
     }
 
-    if (key === '$inc' && !Object.values(value).every(v => typeof v === 'number')) {
+    if ((key === '$inc' || key === '$mul') && !Object.values(value).every(v => typeof v === 'number')) {
       throw new Error(`Update operator ${key} requires number values in object argument`);
     }
 

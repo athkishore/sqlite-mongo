@@ -137,6 +137,76 @@ export function getUpdateFragment(update: UpdateNodeIR[]) {
         s += `)\n`;
         return s;
       }
+
+      case '$max': {
+        const argPairs = element.operandsArr.map((item, index, arr) => {
+          const ref = item[0].$ref;
+          const val = item[1];
+
+          const fieldPathSegments = ref.split('.');
+
+          const sqlFieldRef = fieldPathSegments.reduce((acc, seg) => {
+            return !isNaN(Number(seg))
+              ? `${acc}[${seg}]`
+              : `${acc}.${seg}`;
+          }, '$');
+
+          const sqlValue = getValueSqlFragment(val);
+
+          let s = '';
+          s += `'${sqlFieldRef}',\n`;
+          s += `CASE\n`;
+          s += `  WHEN json_extract(c.doc, '${sqlFieldRef}') < ${sqlValue}\n`;
+          s += `    THEN ${sqlValue}\n`;
+          s += `  ELSE json_extract(c.doc, '${sqlFieldRef}')\n`;
+          s += `END${index === arr.length - 1 ? '' : ','}\n`;
+          return s;
+        });
+
+        let s = '';
+        s += `${JSON_TYPE}_set(\n`;
+        s += `  c.doc,\n`;
+        for (const argPair of argPairs) {
+          s += argPair;
+        }
+        s += `)\n`;
+        return s;
+      }
+
+      case '$min': {
+        const argPairs = element.operandsArr.map((item, index, arr) => {
+          const ref = item[0].$ref;
+          const val = item[1];
+
+          const fieldPathSegments = ref.split('.');
+
+          const sqlFieldRef = fieldPathSegments.reduce((acc, seg) => {
+            return !isNaN(Number(seg))
+              ? `${acc}[${seg}]`
+              : `${acc}.${seg}`;
+          }, '$');
+
+          const sqlValue = getValueSqlFragment(val);
+
+          let s = '';
+          s += `'${sqlFieldRef}',\n`;
+          s += `CASE\n`;
+          s += `  WHEN json_extract(c.doc, '${sqlFieldRef}') > ${sqlValue}\n`;
+          s += `    THEN ${sqlValue}\n`;
+          s += `  ELSE json_extract(c.doc, '${sqlFieldRef}')\n`;
+          s += `END${index === arr.length - 1 ? '' : ','}\n`;
+          return s;
+        });
+
+        let s = '';
+        s += `${JSON_TYPE}_set(\n`;
+        s += `  c.doc,\n`;
+        for (const argPair of argPairs) {
+          s += argPair;
+        }
+        s += `)\n`;
+        return s;
+      }
     }
   }
 }

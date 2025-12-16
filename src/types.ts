@@ -323,6 +323,8 @@ export const UPDATE_OPERATORS_FIELD = [
   '$unset',
   '$inc',
   '$mul',
+  '$max',
+  '$min',
 ] as const;
 
 export type SortNodeIR = {
@@ -344,7 +346,9 @@ export type UpdateNodeIR =
   | UpdateNodeIR_$set
   | UpdateNodeIR_$unset
   | UpdateNodeIR_$inc
-  | UpdateNodeIR_$mul;
+  | UpdateNodeIR_$mul
+  | UpdateNodeIR_$max
+  | UpdateNodeIR_$min;
 
 export type UpdateNodeIR_$set = {
   operator: '$set';
@@ -364,6 +368,16 @@ export type UpdateNodeIR_$inc = {
 export type UpdateNodeIR_$mul = {
   operator: '$mul';
   operandsArr: [FieldReference, number][];
+};
+
+export type UpdateNodeIR_$max = {
+  operator: '$max';
+  operandsArr: [FieldReference, Value][];
+};
+
+export type UpdateNodeIR_$min = {
+  operator: '$min';
+  operandsArr: [FieldReference, Value][];
 };
 
 export type CommandIR = 

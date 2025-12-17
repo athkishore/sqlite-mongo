@@ -1,0 +1,29 @@
+{
+  "name": "@chikkadb/server",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "serve": "node dist/cmd/server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@types/debug": "^4.1.12",
+    "@types/minimist": "^1.2.5",
+    "@types/node": "^24.9.2",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "bson": "^7.0.0",
+    "minimist": "^1.2.8",
+    "debug": "^4.4.3",
+    "@chikkadb/interfaces": "*",
+    "@chikkadb/command-parser": "*",
+    "@chikkadb/backend-sqlite": "*"
+  }
+}

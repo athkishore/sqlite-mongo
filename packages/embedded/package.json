@@ -1,7 +1,7 @@
 {
-  "name": "@chikkadb/command-parser",
+  "name": "@chikkadb/embedded",
   "version": "1.0.0",
-  "main": "./dist/index.js",
+  "main": "index.js",
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -9,8 +9,5 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
-  "dependencies": {
-    "@chikkadb/interfaces": "file:../interfaces"
-  }
+  "description": ""
 }

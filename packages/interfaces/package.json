@@ -1,11 +1,12 @@
 {
   "name": "@chikkadb/interfaces",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "type": "module",
   "scripts": {
     "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "files": ["dist"],
   "exports": {
     "./command/types": "./dist/command/types.js",
     "./wire/types": "./dist/wire/types.js",

@@ -1,8 +1,9 @@
 {
   "name": "@chikkadb/server",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "main": "index.js",
   "type": "module",
+  "files": ["dist"],
   "scripts": {
     "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1",

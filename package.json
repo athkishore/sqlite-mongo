@@ -12,7 +12,7 @@
   ],
   "scripts": {
     "test": "npm test --workspace=packages/integration-tests",
-    "build": "npm run build --workspace=packages/interfaces --workspace=packages/command-parser --workspace=packages/backend-sqlite --workspace=packages/server",
+    "build": "npm run build -w packages/interfaces -w packages/command-parser -w packages/backend-sqlite -w packages/server -w packages/embedded",
     "serve": "node packages/server/dist/cmd/server.js"
   },
   "keywords": [],

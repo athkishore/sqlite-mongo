@@ -16,6 +16,7 @@ import { logSql, logSqlResult } from "./lib/utils.js";
 import { getSortFragment } from "./common/sort.js";
 // import { getProjectionFragment } from "./common/projection.js";
 import { project } from "./user-defined-functions/projection.js";
+import { match } from './user-defined-functions/match.js';
 
 // This is a fickle implementation that can change drastically
 // as and when new optimizations are discovered. But the
@@ -60,7 +61,8 @@ export function translateQueryToSQL({
 
   traverseFilterAndTranslateCTE(canonicalFilter, context);
 
-  const whereFragment = getWhereClauseFromAugmentedFilter(canonicalFilter, context);
+  // const whereFragment = getWhereClauseFromAugmentedFilter(canonicalFilter, context);
+  const whereFragment = `_filter(c.doc)`;
 
   const {
     conditionCTEs
@@ -92,7 +94,7 @@ export function translateQueryToSQL({
 
 
 export function generateAndExecuteSQL_Find(command: FindCommandIR, db: Database) {
-  const { collection, database, sort, projection } = command;
+  const { collection, database, sort, projection, filter } = command;
   const isCollectionNameValid = validateIdentifier(collection);
 
   if (!isCollectionNameValid) throw new Error('Invalid Collection Name');
@@ -102,6 +104,10 @@ export function generateAndExecuteSQL_Find(command: FindCommandIR, db: Database)
 
   if (projection) {
     db.function('_project', (docJSON: string) => stringifyToCustomJSON(project(parseFromCustomJSON(docJSON), projection)));
+  }
+
+  if (filter) {
+    db.function('_filter', (docJSON: string) => match(parseFromCustomJSON(docJSON), filter));
   }
 
   if (!tables.some((t: any) => t.name === collection)) {

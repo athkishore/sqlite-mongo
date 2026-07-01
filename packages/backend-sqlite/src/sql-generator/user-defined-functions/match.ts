@@ -58,12 +58,9 @@ function applyFieldLevelOperator({
   value: Value;
   operator: typeof FIELD_LEVEL_FILTER_OPERATORS[number];
 }): boolean {
-  switch(operator) {
-    case '$eq': {
-      if (typeof value === 'string') {
-        return true;
-      }
-    }
-  }
+  let fieldPathSegments = ref.$ref.split('.');
+
+  
+
   return false;
 }

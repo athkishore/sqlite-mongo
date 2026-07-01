@@ -71,13 +71,7 @@ export function translateQueryToSQL({
   let sql = '';
   sql += `SELECT ${projectionFragment}\n`;
   sql += `FROM ${collection} c\n`;
-  sql += `WHERE EXISTS (\n`;
-  sql += `  WITH ${conditionCTEs.join(',')}\n`;
-  sql += `  SELECT 1\n`;
-  sql += `  FROM (SELECT 1)\n`;
-  sql += `  ${conditionCTEs.map((_, index) => `FULL OUTER JOIN condition_${index} c${index} ON 1=1`).join('\n')}\n`;
   sql += `  WHERE ${whereFragment}\n`;
-  sql += `)\n`;
   sql += `${sortFragment}\n`;
   if (limit !== undefined) {
     sql += `LIMIT ${limit}\n`;
@@ -107,7 +101,7 @@ export function generateAndExecuteSQL_Find(command: FindCommandIR, db: Database)
   }
 
   if (filter) {
-    db.function('_filter', (docJSON: string) => match(parseFromCustomJSON(docJSON), filter));
+    db.function('_filter', (docJSON: string) => Number(match(parseFromCustomJSON(docJSON), filter)));
   }
 
   if (!tables.some((t: any) => t.name === collection)) {

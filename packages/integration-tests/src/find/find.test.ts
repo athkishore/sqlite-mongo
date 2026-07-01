@@ -238,19 +238,16 @@ const suite: Suite = {
           type: 'suite',
           name: 'null field',
           children: [
-            /*  
-            *   This behaviour is different from MongoDB 
-            *   In MongoDB, it also returns documents where
-            *   the field doesn't exist
-            */
             {
               type: 'test',
               name: 'using $eq',
               input: {
                 filter: { homepage: null },
               },
-              expect: result => result.length === 1
-                && result[0]!.username === 'user1',
+              expect: result => {
+                return result.length === 2
+                && result.every(el => el.username === 'user1' || el.username === 'user3');
+              }, 
             },
             {
               type: 'test',

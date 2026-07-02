@@ -3,15 +3,18 @@ import { validateIdentifier } from "./utils.js";
 import type { CountCommandIR, FilterNodeIR } from "@chikkadb/interfaces/command/types";
 import { getWhereClauseFromAugmentedFilter, traverseFilterAndTranslateCTE, type TranslationContext } from "./common/filter.js";
 import { logSql, logSqlResult } from "./lib/utils.js";
+import { match } from "./user-defined-functions/match.js";
+import { parseFromCustomJSON } from "@chikkadb/interfaces/lib/json";
 
 export function generateAndExecuteSQL_Count(command: CountCommandIR, db: Database) {
-  const { collection, database } = command;
+  const { collection, database, filter } = command;
   const isCollectionNameValid = validateIdentifier(collection);
 
   if (!isCollectionNameValid) throw new Error('Invalid Collection Name');
 
-  // const stmt = db.prepare(`SELECT COUNT(DISTINCT id) FROM ${collection}`);
-  // const result = stmt.get();
+  if (filter) {
+    db.function('_filter', (docJSON: string) => Number(match(parseFromCustomJSON(docJSON), filter)));
+  }
 
   const sql = translateQueryToSQL({ collection, filter: command.filter })
   logSql(sql);
@@ -36,31 +39,12 @@ function translateQueryToSQL({
     return `SELECT COUNT(DISTINCT(id)) FROM ${collection} c`;
   }
 
-  const context: TranslationContext = {
-    conditionCTEs: [],
-  };
-
-  traverseFilterAndTranslateCTE(filter, context);
-
-  const whereFragment = getWhereClauseFromAugmentedFilter(filter, context);
-
-  const { conditionCTEs } = context;
+  const whereFragment = `_filter(c.doc)`;
 
   let sql = `\
 SELECT COUNT(DISTINCT(c.id))
 FROM ${collection} c
-WHERE EXISTS (
-  WITH
-  ${conditionCTEs.join(',')}
-  SELECT 1
-  ${conditionCTEs.map((_, index) => {
-    return index === 0
-      ? `FROM condition_${index} c${index}`
-      : `FULL OUTER JOIN condition_${index} c${index} ON 1=1`;
-  }).join('\n')}
-  WHERE
-    ${whereFragment}
-)
+WHERE ${whereFragment}
 `;
 
   return sql;

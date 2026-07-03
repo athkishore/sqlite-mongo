@@ -49,6 +49,7 @@ export function generateAndExecuteSQL_Aggregate(
   }
 
   const sql = translateQueryToSQL({
+    db,
     collection,
     pipeline,
   });
@@ -71,13 +72,15 @@ export function generateAndExecuteSQL_Aggregate(
 }
 
 function translateQueryToSQL({
+  db,
   collection, 
   pipeline,
 }: {
+  db: Database;
   collection: string;
   pipeline: AggregationStageIR[];
 }): string {
-  const pipelineCTEs = translatePipelineToSQL(pipeline, collection);
+  const pipelineCTEs = translatePipelineToSQL(pipeline, collection, db);
 
 
   let sql = ''

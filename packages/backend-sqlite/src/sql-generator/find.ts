@@ -6,11 +6,6 @@ import {
 } from "@chikkadb/interfaces/command/types";
 import type { Database } from "better-sqlite3";
 import { validateIdentifier } from "./utils.js";
-import { 
-  getWhereClauseFromAugmentedFilter, 
-  traverseFilterAndTranslateCTE, 
-  type TranslationContext 
-} from "./common/filter.js";
 import { parseFromCustomJSON, stringifyToCustomJSON } from "@chikkadb/interfaces/lib/json";
 import { logSql, logSqlResult } from "./lib/utils.js";
 import { getSortFragment } from "./common/sort.js";
@@ -38,7 +33,6 @@ export function translateQueryToSQL({
 }) {
   const sortFragment = sort ? getSortFragment(sort) : '';
 
-  // const projectionFragment = projection ? getProjectionFragment(projection) || 'c.doc' : 'c.doc';
   const projectionFragment = projection ? `_project(c.doc) AS doc` : `c.doc`;
 
   if (canonicalFilter.operator === '$and' && canonicalFilter.operands.length === 0) {
@@ -55,18 +49,7 @@ export function translateQueryToSQL({
     return sql;
   }
 
-  const context: TranslationContext = {
-    conditionCTEs: [],
-  };
-
-  traverseFilterAndTranslateCTE(canonicalFilter, context);
-
-  // const whereFragment = getWhereClauseFromAugmentedFilter(canonicalFilter, context);
   const whereFragment = `_filter(c.doc)`;
-
-  const {
-    conditionCTEs
-  } = context;
 
   let sql = '';
   sql += `SELECT ${projectionFragment}\n`;

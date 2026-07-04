@@ -1,15 +1,19 @@
 import type { FilterNodeIR, FindAndModifyCommandIR, FindAndModifyCommandResult, UpdateNodeIR } from "@chikkadb/interfaces/command/types";
 import type { Database } from "better-sqlite3";
-import { getUpdateFragment } from "./common/update.js";
-import { parseFromCustomJSON } from "@chikkadb/interfaces/lib/json";
+import { parseFromCustomJSON, stringifyToCustomJSON } from "@chikkadb/interfaces/lib/json";
 import { logSql, logSqlResult } from "./lib/utils.js";
 import { match } from "./user-defined-functions/match.js";
+import { update as updateFn } from "./user-defined-functions/update.js";
 
 export function generateAndExecuteSQL_FindAndModify(command: FindAndModifyCommandIR, db: Database): FindAndModifyCommandResult {
   const { collection, filter, update } = command;
 
   if (filter) {
     db.function('_filter', (docJSON: string) => Number(match(parseFromCustomJSON(docJSON), filter)));
+  }
+
+  if (update) {
+    db.function('_update', (docJSON: string) => stringifyToCustomJSON(updateFn(parseFromCustomJSON(docJSON), update)));
   }
 
   const sql = translateCommandToSQL({ collection, filter, update });
@@ -43,7 +47,7 @@ function translateCommandToSQL({
     : `\
   WHERE ${whereFragment}
 `;
-  const updateFragment = getUpdateFragment(update);
+  const updateFragment = `_update(c.doc)`;
 
   let sql = `
 UPDATE ${collection} AS c

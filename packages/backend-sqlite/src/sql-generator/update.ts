@@ -1,9 +1,9 @@
 import type { FilterNodeIR, UpdateCommandIR, UpdateNodeIR } from "@chikkadb/interfaces/command/types";
 import type { Database } from "better-sqlite3";
-import { getUpdateFragment } from "./common/update.js";
 import { parseFromCustomJSON, stringifyToCustomJSON } from "@chikkadb/interfaces/lib/json";
 import { logSql, logSqlResult } from "./lib/utils.js";
 import { match } from "./user-defined-functions/match.js";
+import { update as updateFn } from "./user-defined-functions/update.js";
 
 
 export function generateAndExecuteSQL_Update(command: UpdateCommandIR, db: Database) {
@@ -19,6 +19,7 @@ export function generateAndExecuteSQL_Update(command: UpdateCommandIR, db: Datab
   if (!update) throw new Error('Missing update');
 
   db.function('_filter', (docJSON: string) => Number(match(parseFromCustomJSON(docJSON), filter)));
+  db.function('_update', (docJSON: string) => stringifyToCustomJSON(updateFn(parseFromCustomJSON(docJSON), update)));
 
   const sql = translateCommandToSQL({ collection, filter, update });
 
@@ -57,7 +58,7 @@ export function translateCommandToSQL({
 `;
 
   
-  const updateFragment = getUpdateFragment(update);
+  const updateFragment = `_update(c.doc)`;
 
   let sql = `
 UPDATE ${collection} AS c

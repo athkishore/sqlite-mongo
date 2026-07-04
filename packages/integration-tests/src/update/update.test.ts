@@ -167,7 +167,7 @@ const suite: Suite = {
         /**
          * This behaviour is different from MongoDB
          * It creates an object and sets key 0 to the value
-         * ChikkaDB creates an array and sets first element to value
+         * ChikkaDB creates an array and sets the element at specified index to value with any preceding elements set to null
          */
         {
           type: 'test',
@@ -184,8 +184,8 @@ const suite: Suite = {
           expect: result => {
             return result.length === 1
               && result[0]!.username === 'user1'
-              && result[0]!.arr && result[0]!.arr[0] === 1
-              && !result[0]!.arr2;
+              && result[0]!.arr && result[0]!.arr['0'] === 1
+              && result[0]!.arr2 && result[0]!.arr2['1'] === 10;
           }
         },
         /**
@@ -205,6 +205,7 @@ const suite: Suite = {
             },
           },
           expect: (result) => {
+            console.log(result);
             return result.length === 1
               && typeof result[0]!.obj.x === 'number'
               && result[0]!.obj.x === 1;
@@ -283,11 +284,6 @@ const suite: Suite = {
               && result[0]!.address.y === 'bar';
           },
         },
-        /**
-         * Deviation in Behaviour:
-         * MongoDB sets the array element at index to null
-         * ChikkaDB removes the element and reduces the size of the array.
-         */
         {
           type: 'test',
           name: 'removes array element at index',
@@ -300,8 +296,9 @@ const suite: Suite = {
             },
           },
           expect: result => {
-            return result[0]!.follows.length === 1 
-              && !result[0]!.follows.includes('user2');
+            return result[0]!.follows.length === 2 
+              && !result[0]!.follows.includes('user2')
+              && result[0]!.follows.includes(null);
           }
         },
         {

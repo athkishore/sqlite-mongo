@@ -45,7 +45,7 @@ ChikkaDB achieves a great degree of BSON-compatibility by storing and operating 
 
 ## User-defined functions on top of an SQL scaffold
 
-To begin with, the approach was to translate MongoDB Query Language documents into SQL statements, using SQLite's internal JSON and JSONB functions as much as possible. While the project achieved considerable early success using this approach, it did not seem scalabale or maintainable. The generated SQL statements were extremely complex, and in some cases, slow. It also became difficult to test. 
+To begin with, the approach was to translate MongoDB Query Language documents into SQL statements, using SQLite's internal JSON and JSONB functions as much as possible. While the project achieved considerable early success using this approach, it did not seem scalable or maintainable. The generated SQL statements were extremely complex, and in some cases, slow. It also became difficult to test. 
 
 In July 2026, ChikkaDB has pivoted towards user-defined functions for command components such as match, project, and update, while using SQLite's SQL statements as a scaffold. This means that the queries are going to be much slower in the short run as SQLite calls into Javascript UDFs. However, in the longer run, it can be optimized significantly by a reimplementation in a language that compiles to native code. 
 

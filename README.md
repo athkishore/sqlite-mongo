@@ -35,7 +35,7 @@ If you wish to import your existing MongoDB database, `mongorestore` and `mongoi
 
 # Compatibility with MongoDB
 
-ChikkaDB aims to implement a subset of the MongoDB commands that is sufficiently rich to unlock the power of SQLite's JSON and JSONB functions. It doesn't aim for completeness in compatibility, since MongoDB has some obscure commands. The selection of commands and operators is based on the expressive value they add in interacting with JSON data stored in SQLite. See [Supported Commands](https://chikkadb.org/reference/database-commands/) to find out which commands are available.
+ChikkaDB aims to implement a subset of the MongoDB commands that is sufficiently rich to unlock the power of JSON in SQLite. It doesn't aim for completeness in compatibility, since MongoDB has some obscure commands. The selection of commands and operators is based on the expressive value they add in interacting with JSON data stored in SQLite. See [Supported Commands](https://chikkadb.org/reference/database-commands/) to find out which commands are available.
 
 The ChikkaDB server is wire-compatible with `mongod`, so you can connect to ChikkaDB using any of your favourite MongoDB clients or language drivers.
 
@@ -43,12 +43,13 @@ ChikkaDB achieves a great degree of BSON-compatibility by storing and operating 
 
 # Architecture
 
-## Betting on SQLite JSONB
-ChikkaDB looks to leverage SQLite's native JSONB storage format and its powerful associated functions as fully as possible. The overarching approach is to translate MongoDB Query Language documents into SQL statements. 
+## User-defined functions on top of an SQL scaffold
 
-While this might seem unwieldy, in practice I have found it possible to write equivalent SQL for even complex MongoDB queries and aggregation pipelines. The inbuilt [SQLite JSONB library](https://sqlite.org/json1.html) is versatile and provides functions that cover most if not all cases in manipulating JSON. With the addition of jsonb_each and jsonb_tree in v3.51.0, processing JSON data in SQLite has become ultra-fast.
+To begin with, the approach was to translate MongoDB Query Language documents into SQL statements, using SQLite's internal JSON and JSONB functions as much as possible. While the project achieved considerable early success using this approach, it did not seem scalabale or maintainable. The generated SQL statements were extremely complex, and in some cases, slow. It also became difficult to test. 
 
-The challenge seems to be to implement the translation layer well. It is possible that there are some rough edges that I haven't encountered yet, but it seems unlikely there could be problems that can't be solved through custom extensions even if they might not be amenable to being expressed in SQL.
+In July 2026, ChikkaDB has pivoted towards user-defind functions for command components such as match, project, and update, while using SQLite's SQL statements as a scaffold. This means that the queries are going to be much slower in the short run as SQLite calls into Javascript UDFs. However, in the longer run, it can be optimized significantly by a reimplementation in a language that compiles to native code. 
+
+Also, currently ChikkaDB doesn't leverage SQLite's native JSONB storage format. That can speed up queries further.
 
 ## Major Components
 1. **TCP server** that handles communication with MongoDB Client 
@@ -60,9 +61,9 @@ This design choice leaves room for extensions and variants in the future. For ex
 
 # Roadmap
 
-The first version will be written in Typescript (the only language I'm fluent in currently). The aim is to implement enough database commands to support basic CRUD functionality. Each document will be stored in a single JSON field in an SQLite table.
+The first version will be written in Typescript as a quick protoyping language. The aim is to implement enough database commands to support basic CRUD functionality. Each document will be stored in a single JSON field in an SQLite table.
 
-If this turns out to be successful, I have a more ambitious plan of reimplementing the server in C (or more realistically Rust), to make it more performant. As it is, ChikkaDB only translates MongoDB commands to SQL and SQLite does all the heavy lifting, so performance shouldn't be much of an issue.
+If this turns out to be successful, I have a more ambitious plan of reimplementing the server in C (or more realistically Go/Rust), to make it more performant. 
 
 A more detailed roadmap will be made available as the project evolves.
 

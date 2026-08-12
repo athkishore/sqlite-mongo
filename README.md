@@ -1,3 +1,5 @@
+
+
 > This project is in the initial stages of development and is not yet stable. Minimal functionality exists for Create, Read, Update and Delete, but most of the operators are still being implemented. Feel free to [try it out](#get-started), or look around and play with the code.
 > 
 > You might also be interested in checking out the companion exploration packages at https://github.com/athkishore/chikkadb-journey
@@ -61,7 +63,7 @@ This design choice leaves room for extensions and variants in the future. For ex
 
 # Roadmap
 
-The first version will be written in Typescript as a quick protoyping language. The aim is to implement enough database commands to support basic CRUD functionality. Each document will be stored in a single JSON field in an SQLite table.
+The first version will be written in Typescript as a quick prototyping language. The aim is to implement enough database commands to support basic CRUD functionality. Each document will be stored in a single JSON field in an SQLite table.
 
 If this turns out to be successful, I have a more ambitious plan of reimplementing the server in C (or more realistically Go/Rust), to make it more performant. 
 
